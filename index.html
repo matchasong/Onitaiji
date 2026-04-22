@@ -1,0 +1,5030 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONITAIJI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;700;900&display=swap');
+
+    :root {
+      --bg: #fdf0f3;
+      --surface: #ffffff;
+      --surface2: #fdf5f7;
+      --border: #f0c8d0;
+      --accent: #c0392b;
+      --accent2: #8b3a62;
+      --warn: #d4691e;
+      --good: #2e7d4f;
+      --text: #3a1a22;
+      --text2: #9a6070;
+      --mono: 'Nunito', sans-serif;
+      --sans: 'Noto Sans JP', sans-serif;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* soft gradient bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(220, 140, 160, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(180, 100, 140, 0.10) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--accent2);
+    }
+
+    .logo span {
+      color: var(--text2);
+      font-weight: 400;
+    }
+
+    .turn-info {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text2);
+      text-align: right;
+    }
+
+    .turn-info .turn-num {
+      font-size: 28px;
+      color: var(--text);
+      font-weight: 700;
+      display: block;
+    }
+
+    /* KPIs */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 8px rgba(100, 80, 160, 0.06);
+    }
+
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .kpi.capital::before {
+      background: var(--good);
+    }
+
+    .kpi.revenue::before {
+      background: var(--accent2);
+    }
+
+    .kpi.headcount::before {
+      background: var(--warn);
+    }
+
+    .kpi.morale::before {
+      background: var(--accent);
+    }
+
+    .kpi-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text2);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .kpi.capital .kpi-value {
+      color: var(--good);
+    }
+
+    .kpi.revenue .kpi-value {
+      color: var(--accent2);
+    }
+
+    .kpi.headcount .kpi-value {
+      color: var(--warn);
+    }
+
+    .kpi.morale .kpi-value {
+      color: var(--accent);
+    }
+
+    .kpi-delta {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 4px;
+      color: var(--text2);
+    }
+
+    /* Main layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(100, 80, 160, 0.06);
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--text2);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Projects */
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .project-card {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+      border-radius: 8px;
+    }
+
+    .project-card:hover {
+      border-color: var(--accent2);
+      box-shadow: 0 2px 10px rgba(106, 143, 223, 0.15);
+    }
+
+    .project-card.selected {
+      border-color: var(--accent2);
+      background: #1a1a30;
+    }
+
+    .project-card.active {
+      border-color: var(--warn);
+    }
+
+    .project-card.completed {
+      border-color: var(--good);
+      opacity: 0.6;
+    }
+
+    .project-card.failed {
+      border-color: var(--accent);
+      border-width: 2px;
+      background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+      animation: flamePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes flamePulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 8px rgba(224, 96, 128, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(224, 96, 128, 0.55);
+      }
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .project-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .project-scale {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border: 1px solid;
+    }
+
+    .scale-large {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .scale-medium {
+      color: var(--warn);
+      border-color: var(--warn);
+    }
+
+    .scale-small {
+      color: var(--text2);
+      border-color: var(--border);
+    }
+
+    .project-meta {
+      display: flex;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .project-meta span {
+      color: var(--text);
+    }
+
+    .project-status-bar {
+      margin-top: 10px;
+      height: 3px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .project-status-fill {
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    /* Team assignment */
+    .assign-area {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .assign-area.open {
+      display: block;
+    }
+
+    .assign-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .manager-select {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mgr-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mgr-btn:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .mgr-btn.type-a {}
+
+    .mgr-btn.type-a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .mgr-btn.assigned-a {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232, 64, 64, 0.1);
+    }
+
+    .mgr-btn.assigned-b {
+      border-color: var(--accent2);
+      color: var(--accent2);
+      background: rgba(64, 128, 255, 0.1);
+    }
+
+    /* Right panel */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Managers */
+    .manager-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .manager-card {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      padding: 12px;
+      position: relative;
+      border-radius: 8px;
+    }
+
+    .manager-card.type-a {
+      border-left: 4px solid var(--accent);
+    }
+
+    .manager-card.type-b {
+      border-left: 4px solid var(--accent2);
+    }
+
+    .mgr-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .mgr-name {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .mgr-type {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 1px 6px;
+      letter-spacing: 1px;
+    }
+
+    .type-a .mgr-type {
+      background: rgba(232, 64, 64, 0.2);
+      color: var(--accent);
+    }
+
+    .type-b .mgr-type {
+      background: rgba(64, 128, 255, 0.2);
+      color: var(--accent2);
+    }
+
+    .mgr-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+    }
+
+    .mgr-stats span {
+      color: var(--text);
+    }
+
+    .mgr-team {
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+    }
+
+    /* Event log */
+    .event-log {
+      max-height: 320px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .event-log::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .event-log::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    .event-log::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+
+    .log-entry {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      background: var(--surface2);
+      border-left: 3px solid var(--border);
+      color: var(--text2);
+      border-radius: 0 6px 6px 0;
+    }
+
+    .log-entry.warn {
+      border-left-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .log-entry.bad {
+      border-left-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .log-entry.good {
+      border-left-color: var(--good);
+      color: var(--good);
+    }
+
+    .log-entry.info {
+      border-left-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    /* Bottom actions */
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 1px;
+      padding: 12px 32px;
+      background: var(--accent2);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(106, 143, 223, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #7a9fe8;
+      box-shadow: 0 4px 12px rgba(106, 143, 223, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: var(--border);
+      color: var(--text2);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-secondary {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      padding: 12px 20px;
+      background: var(--surface);
+      color: var(--text2);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      border-radius: 8px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+      background: rgba(106, 143, 223, 0.06);
+    }
+
+    .turn-hint {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+      flex: 1;
+      text-align: right;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(58, 54, 80, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      padding: 32px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(100, 80, 160, 0.15);
+    }
+
+    .modal-title {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .modal-detail {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface2);
+      padding: 16px;
+      margin-bottom: 20px;
+      border-left: 3px solid var(--warn);
+      line-height: 1.8;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Hire panel */
+    .hire-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .hire-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .hire-card:hover.type-a {
+      border-color: var(--accent);
+    }
+
+    .hire-card:hover.type-b {
+      border-color: var(--accent2);
+    }
+
+    .hire-type-label {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .type-a .hire-type-label {
+      color: var(--accent);
+    }
+
+    .type-b .hire-type-label {
+      color: var(--accent2);
+    }
+
+    .hire-desc {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .hire-cost {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--warn);
+      margin-top: 8px;
+    }
+
+    /* Progress bars */
+    .bar-wrap {
+      margin-top: 6px;
+    }
+
+    .bar-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .bar {
+      height: 4px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    /* Morale indicator (noisy) */
+    .morale-display {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .morale-high {
+      color: var(--good);
+    }
+
+    .morale-mid {
+      color: var(--warn);
+    }
+
+    .morale-low {
+      color: var(--accent);
+    }
+
+    .morale-unknown {
+      color: var(--text2);
+    }
+
+    /* Gameover */
+    .gameover {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .gameover-title {
+      font-family: var(--mono);
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 16px;
+      letter-spacing: 4px;
+    }
+
+    .gameover-score {
+      font-family: var(--mono);
+      font-size: 64px;
+      font-weight: 700;
+      color: var(--good);
+      margin: 24px 0;
+    }
+
+    .score-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text2);
+      letter-spacing: 2px;
+    }
+
+    /* Intro screen */
+    #intro {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .intro-inner {
+      max-width: 560px;
+    }
+
+    .intro-logo {
+      font-family: var(--mono);
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: var(--accent2);
+      margin-bottom: 8px;
+    }
+
+    .intro-sub {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text2);
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+    }
+
+    .intro-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.8;
+      margin-bottom: 40px;
+      text-align: left;
+      background: var(--surface);
+      padding: 24px;
+      border-left: 4px solid var(--accent2);
+      border-radius: 0 8px 8px 0;
+      box-shadow: 0 2px 12px rgba(100, 80, 160, 0.08);
+    }
+
+    .intro-rules {
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 32px;
+      line-height: 2;
+      background: var(--surface);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+    }
+
+    .intro-rules span {
+      color: var(--accent2);
+      font-weight: 700;
+    }
+
+    #game {
+      display: none;
+    }
+
+    @keyframes donburakoFloat {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(-5deg);
+      }
+
+      50% {
+        transform: translateY(-8px) rotate(5deg);
+      }
+    }
+
+    @keyframes donburakoSlide {
+      0% {
+        left: -80px;
+      }
+
+      100% {
+        left: calc(50% - 36px);
+      }
+    }
+
+    @keyframes donburakoText {
+      0% {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .flash {
+      animation: flash 0.4s ease;
+    }
+
+    @keyframes flash {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .warning-banner {
+      background: rgba(224, 96, 128, 0.1);
+      border: 1.5px solid var(--accent);
+      padding: 10px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: none;
+      border-radius: 8px;
+    }
+
+    .warning-banner.show {
+      display: block;
+    }
+
+    .prospect-badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 1px 5px;
+      background: rgba(240, 160, 48, 0.2);
+      border: 1px solid var(--warn);
+      color: var(--warn);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .promote-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: transparent;
+      border: 1px solid var(--warn);
+      color: var(--warn);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .promote-btn:hover {
+      background: rgba(240, 160, 48, 0.2);
+    }
+
+    .swap-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: transparent;
+      border: 1px solid var(--text2);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-left: 8px;
+    }
+
+    .swap-btn:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .swap-panel {
+      display: none;
+      margin-top: 8px;
+      padding: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+    }
+
+    .swap-panel.open {
+      display: block;
+    }
+
+    .prospect-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .prospect-item {
+      background: var(--surface2);
+      border: 1px solid var(--warn);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prospect-info {
+      font-size: 13px;
+    }
+
+    .prospect-info small {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+      display: block;
+      margin-top: 3px;
+    }
+
+    /* Member face display */
+    .member-faces {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 6px;
+    }
+
+    .member-face {
+      font-size: 16px;
+      cursor: default;
+      line-height: 1;
+      position: relative;
+    }
+
+    .member-face.is-prospect {
+      filter: drop-shadow(0 0 3px var(--warn));
+    }
+
+    /* Team count link */
+    .team-count-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: transparent;
+      border: none;
+      color: var(--accent2);
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .team-count-btn:hover {
+      color: var(--text);
+    }
+
+    /* Member list modal */
+    .member-list-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .member-list-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .member-list-grid::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    .member-list-grid::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+
+    .member-row {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: 24px 1fr 80px 60px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .member-row.is-prospect {
+      border-color: var(--warn);
+    }
+
+    .member-row-face {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .member-row-name {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .member-row-name small {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text2);
+      display: block;
+    }
+
+    .skill-bar-wrap {}
+
+    .skill-bar-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text2);
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .skill-bar {
+      height: 4px;
+      background: var(--border);
+    }
+
+    .skill-bar-fill {
+      height: 100%;
+      background: var(--accent2);
+      transition: width 0.3s;
+    }
+
+    .member-row.is-prospect .skill-bar-fill {
+      background: var(--warn);
+    }
+
+    .member-row-morale {
+      font-size: 20px;
+      text-align: center;
+    }
+
+    /* Timer */
+    .timer-bar-wrap {
+      margin-bottom: 8px;
+    }
+
+    .timer-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text2);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .timer-label .timer-secs {
+      font-weight: 700;
+      transition: color 0.3s;
+    }
+
+    .timer-bar {
+      height: 4px;
+      background: var(--border);
+    }
+
+    .timer-fill {
+      height: 100%;
+      background: var(--accent2);
+      transition: width 1s linear, background 0.3s;
+    }
+
+    .timer-fill.warn {
+      background: var(--warn);
+    }
+
+    .timer-fill.danger {
+      background: var(--accent);
+    }
+
+    /* Floating emoji */
+    .emoji-field {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .emoji-float {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0.5;
+      animation: floatUp linear infinite;
+      user-select: none;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.5;
+      }
+
+      90% {
+        opacity: 0.4;
+      }
+
+      100% {
+        transform: translateY(-100vh) rotate(20deg);
+        opacity: 0;
+      }
+    }
+
+    .intro-title-emoji {
+      font-size: 52px;
+      margin-bottom: 12px;
+      display: block;
+      filter: drop-shadow(0 4px 8px rgba(100, 80, 160, 0.2));
+    }
+
+    @media (max-width: 768px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Member label dots */
+    .member-label-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      cursor: pointer;
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      transition: transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    .member-label-dot:hover {
+      transform: scale(1.3);
+    }
+
+    .member-label-picker {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .label-red {
+      background: #e88;
+    }
+
+    .label-yellow {
+      background: #ec8;
+    }
+
+    .label-green {
+      background: #8c8;
+    }
+
+    .label-blue {
+      background: #88c;
+    }
+
+    .label-none {
+      background: var(--border);
+      border-style: dashed;
+    }
+
+    /* Leader comment tooltip */
+    .leader-comment-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .leader-comment-bubble {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+      width: 220px;
+      box-shadow: 0 4px 16px rgba(100, 80, 160, 0.15);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .leader-comment-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--border);
+    }
+
+    .leader-comment-wrap:hover .leader-comment-bubble {
+      display: block;
+    }
+
+    .gameover-leaders {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .gameover-leader-chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      cursor: default;
+      transition: border-color 0.15s;
+    }
+
+    .gameover-leader-chip:hover {
+      border-color: var(--accent2);
+    }
+
+    .gameover-leader-chip.type-a {
+      border-left: 3px solid var(--accent);
+    }
+
+    .gameover-leader-chip.type-b {
+      border-left: 3px solid var(--accent2);
+    }
+
+    /* チュートリアル固有 */
+    .hint-box {
+      background: var(--accent2);
+      color: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(106, 143, 223, 0.3);
+    }
+
+    .hint-box::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 40px;
+      border: 10px solid transparent;
+      border-top-color: var(--accent2);
+      border-bottom: 0;
+    }
+
+    .hint-box.hint-warn {
+      background: var(--warn);
+      box-shadow: 0 4px 16px rgba(232, 151, 58, 0.3);
+    }
+
+    .hint-box.hint-warn::after {
+      border-top-color: var(--warn);
+    }
+
+    .hint-box.hint-good {
+      background: var(--good);
+      box-shadow: 0 4px 16px rgba(74, 184, 144, 0.3);
+    }
+
+    .hint-box.hint-good::after {
+      border-top-color: var(--good);
+    }
+
+    .hint-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+
+    .stepper {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--border);
+      color: var(--text2);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--accent2);
+      color: white;
+    }
+
+    .step-dot.done {
+      background: var(--good);
+      color: white;
+    }
+
+    .step-line {
+      width: 20px;
+      height: 2px;
+      background: var(--border);
+    }
+
+    .tut-highlight {
+      border-color: var(--accent) !important;
+      animation: tutPulse 0.8s ease-in-out infinite;
+    }
+
+    @keyframes tutPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 3px var(--accent), 0 0 10px rgba(224, 96, 128, 0.4);
+        border-color: var(--accent) !important;
+        opacity: 1;
+      }
+
+      50% {
+        box-shadow: 0 0 0 3px rgba(224, 96, 128, 0.3), 0 0 4px rgba(224, 96, 128, 0.1);
+        border-color: rgba(224, 96, 128, 0.3) !important;
+        opacity: 0.75;
+      }
+    }
+
+    .complete-banner {
+      background: var(--good);
+      color: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 800;
+      box-shadow: 0 4px 16px rgba(74, 184, 144, 0.3);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- INTRO -->
+  <div id="intro">
+    <!-- 浮かぶ顔文字 -->
+    <div class="emoji-field" id="emojiField"></div>
+
+    <div class="intro-inner" style="position:relative;z-index:1;">
+      <span class="intro-title-emoji">🍑</span>
+      <div class="intro-logo">ONITAIJI</div>
+      <div class="intro-desc" style="text-align:left;line-height:2.0;font-size:13px;">
+        むかしむかし、ある村に長老がおりました。<br><br>
+        鬼は増える一方で、討伐の依頼は絶えません。長老には仲間がいます。強い者も、優しい者も。<br><br>
+        鬼を倒す者は、仲間を消耗させる。<br>
+        仲間を守る者は、大きな鬼に挑めない。<br><br>
+        長老は今日も考えます——<br>
+        誰を、どこへ。<br>
+        <span style="color:var(--text2);">帰ってくるかどうかは、わからないまま。</span>
+      </div>
+      <div class="intro-rules">
+        <span>TURN</span> 20ターン / 40ターン / 100ターンを選択<br>
+        <span>TIME</span> 1ターン30秒の制限時間あり<br>
+        <span>WIN</span> 最終ターン後の財宝でスコア判定<br>
+        <span>LOSE</span> 財宝がゼロになると即終了<br>
+        <span>鬼殺し型(TYPE-A)</span> 大型討伐こなせるが仲間を消耗させる<br>
+        <span>仲間思い型(TYPE-B)</span> 中型討伐が得意で仲間を育てる<br>
+        <span>AWAKEN</span> 極限まで追い込まれた仲間が覚醒することがある<br>
+        <span>NOTE</span> 士気の報告値には誤差がある
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="startGame(20)">20ターン — 標準</button>
+        <button class="btn-secondary"
+          style="padding:12px 32px;font-family:var(--mono);font-size:13px;letter-spacing:2px;"
+          onclick="startGame(40)">40ターン — ハード</button>
+        <button class="btn-secondary"
+          style="padding:12px 32px;font-family:var(--mono);font-size:13px;letter-spacing:2px;border-color:var(--warn);color:var(--warn);"
+          onclick="startGame(100)">100ターン — レジェンド</button>
+        <button class="btn-secondary"
+          style="padding:12px 32px;font-family:var(--mono);font-size:13px;letter-spacing:2px;border-color:var(--good);color:var(--good);"
+          onclick="showTutorial()">🎓 チュートリアル</button>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:16px;line-height:1.8;">
+        このゲームはフィクションです。実在の人物・団体・村とは一切関係ありません。<br>
+        ゲーム内の状況描写はゲームプレイ上の演出であり、特定の行為を推奨するものではありません。
+      </div>
+    </div>
+  </div>
+  <!-- TUTORIAL -->
+  <div id="tutorial" style="display:none;">
+    <div id="tut-app">
+
+      <!-- ヘッダー -->
+      <header>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="logo">🍑 ONITAIJI</div>
+          <span
+            style="font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--surface2);padding:3px 10px;border-radius:12px;border:1px solid var(--border);">チュートリアル</span>
+        </div>
+        <div class="stepper" id="tut-stepper"></div>
+      </header>
+
+      <!-- ヒントボックス -->
+      <div class="hint-box" id="tut-hintBox">
+        <div class="hint-title" id="tut-hintTitle">STEP 1 / 5</div>
+        <div id="tut-hintText"></div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-row">
+        <div class="kpi capital">
+          <div class="kpi-label">財宝（両）</div>
+          <div class="kpi-value" id="tut-kpiCapital">8,000両</div>
+        </div>
+        <div class="kpi headcount">
+          <div class="kpi-label">一行の人数</div>
+          <div class="kpi-value">20名</div>
+        </div>
+        <div class="kpi morale">
+          <div class="kpi-label">士気（報告値）</div>
+          <div class="kpi-value" id="tut-kpiMorale">良好</div>
+        </div>
+        <span id="tut-kpiTurn" style="display:none;">第1ターン</span>
+      </div>
+
+      <!-- メインレイアウト -->
+      <div class="main-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-title">討伐依頼一覧</div>
+            <div class="project-list" id="tut-projectList"></div>
+          </div>
+
+          <!-- タイマー -->
+          <div class="timer-bar-wrap" id="tut-timerWrap" style="display:none;margin-top:12px;">
+            <div class="timer-label">
+              <span>⏱ アサイン制限時間（30秒）</span>
+              <span class="timer-secs" id="tut-timerSecs">30</span>
+            </div>
+            <div class="timer-bar">
+              <div class="timer-fill" id="tut-timerFill" style="width:100%"></div>
+            </div>
+          </div>
+
+          <!-- アクションバー -->
+          <div style="margin-top:16px;display:flex;gap:10px;align-items:center;">
+            <button class="btn-primary" id="tut-nextBtn" onclick="tutOnNext()" disabled>次の討伐へ →</button>
+          </div>
+        </div>
+
+        <!-- 右カラム -->
+        <div class="right-col">
+          <div class="panel">
+            <div class="panel-title">隊長一覧</div>
+            <div class="manager-list" id="tut-managerList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">討伐記録</div>
+            <div style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;" id="tut-eventLog">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /app -->
+
+    <!-- モーダル：仲間一覧 -->
+    <div class="modal-overlay" id="tut-memberModal">
+      <div class="modal" style="max-width:480px;">
+        <div class="modal-title" id="tut-memberModalTitle">一行仲間</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
+          顔文字で士気状態がわかります：😄 良好　😐 普通　😟 低下　😩 危険　💀 限界
+        </div>
+        <!-- スクロール矢印 -->
+        <div id="tut-scrollArrow" style="display:none;text-align:center;margin-bottom:6px;">
+          <span
+            style="font-size:28px;color:var(--accent);animation:tutPulse 0.8s ease-in-out infinite;display:inline-block;">↓</span>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;margin-top:2px;">
+            スクロールして確認</div>
+        </div>
+        <div class="member-list-grid" id="tut-memberListGrid" onscroll="tutOnMemberScroll()"></div>
+        <div class="modal-actions">
+          <button class="btn-primary" id="tut-confirmMemberBtn" onclick="tutCloseMemberModal()"
+            style="opacity:0.4;pointer-events:none;">確認しました</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- モーダル：完了 -->
+    <div class="modal-overlay" id="tut-doneModal">
+      <div class="modal" style="max-width:520px;">
+        <div style="text-align:center;font-size:44px;margin-bottom:8px;">🎓</div>
+        <div class="modal-title" style="color:var(--good);text-align:center;">チュートリアル完了！</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.9;margin:16px 0;">
+          基本操作は以上です。本編ではさらに：<br><br>
+          <strong>📦 大型討伐</strong> が登場します。収益は大きいですが失敗リスクも高く、A型だけが担当できる討伐任務もあります。<br><br>
+          <strong>📯 長老圧力</strong> 第6ターン以降、大型討伐の実績がないと長老から罰金が課されます。<br><br>
+          <strong>💥 覚醒（伝説化）</strong> A型配下で限界まで追い込まれた仲間が稀に急成長することがあります。<br><br>
+          <strong>🍑 新たな加勢</strong> 武勲を立てた仲間の縁起が高まると、新たな隊長を呼び寄せることができます。<br><br>
+          <strong>30秒の制限時間</strong>の中で采配してください。
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="startFromTutorial()">🎮 本編を始める</button>
+          <button class="btn-secondary" onclick="tutRestartTutorial()">🔄 もう一度</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="game">
+    <div id="app">
+      <div class="warning-banner" id="warnBanner"></div>
+
+      <header>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="logo">🍑 ONITAIJI</div>
+          <button class="btn-secondary" style="font-size:10px;padding:6px 12px;" onclick="backToTitle()">←
+            タイトルへ</button>
+          <button class="btn-secondary" style="font-size:10px;padding:6px 12px;display:none;" id="showResultBtn"
+            onclick="document.getElementById('gameoverModal').classList.add('open')">📊 結果を見る</button>
+          <button class="btn-secondary" style="font-size:10px;padding:6px 12px;display:none;" id="showRevealBtn"
+            onclick="openRevealModal()">🔍 実値・離脱者</button>
+        </div>
+        <div class="turn-info">
+          ターン<span class="turn-num" id="turnDisplay">1</span>/ <span id="maxTurnDisplay">20</span>
+        </div>
+      </header>
+
+      <div class="kpi-row">
+        <div class="kpi capital">
+          <div class="kpi-label">財宝（両）</div>
+          <div class="kpi-value" id="kpiCapital">0両</div>
+          <div class="kpi-delta" id="kpiCapitalDelta">—</div>
+        </div>
+        <div class="kpi revenue" style="display:none">
+          <div class="kpi-label" style="display:none">今回の討伐PT</div>
+          <div class="kpi-value" style="display:none" id="kpiRevenue">0両</div>
+          <div class="kpi-delta" style="display:none" id="kpiRevenueDelta">—</div>
+        </div>
+        <div class="kpi headcount">
+          <div class="kpi-label">一行の総人数</div>
+          <div class="kpi-value" id="kpiHeadcount">0</div>
+          <div class="kpi-delta" id="kpiHeadcountDelta">—</div>
+        </div>
+        <div class="kpi morale">
+          <div class="kpi-label">士気（報告値）</div>
+          <div class="kpi-value" id="kpiMorale">—</div>
+          <div class="kpi-delta" id="kpiMoraleDelta">±誤差あり</div>
+        </div>
+        <div class="kpi" style="border-top: 2px solid #9080c8;">
+          <div class="kpi-label">村の名声</div>
+          <div class="kpi-value" id="kpiReputation">80</div>
+          <div class="kpi-delta" id="kpiReputationDelta">—</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-title">討伐依頼一覧</div>
+            <div class="project-list" id="projectList"></div>
+          </div>
+
+          <div class="timer-bar-wrap" id="turnTimerWrap">
+            <div class="timer-label">
+              <span>⏱ アサイン制限時間（30秒）</span>
+              <span class="timer-secs" id="turnTimerSecs">30</span>
+            </div>
+            <div class="timer-bar">
+              <div class="timer-fill" id="turnTimerFill" style="width:100%"></div>
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <button class="btn-primary" id="nextTurnBtn" onclick="nextTurn()">次の討伐へ →</button>
+            <button class="btn-secondary" onclick="openHire()">+ 他村からの助っ人（200両）</button>
+            <div class="turn-hint" id="turnHint">討伐任務に隊長を配置してからターンを進めてください</div>
+          </div>
+        </div>
+
+        <div class="right-col">
+          <div class="panel">
+            <div class="panel-title">隊長一覧</div>
+            <div class="manager-list" id="managerList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">討伐記録</div>
+            <div class="event-log" id="eventLog"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Awakening Event -->
+  <div class="modal-overlay" id="awakenModal">
+    <div class="modal">
+      <div class="modal-title" style="color:var(--warn)">🌸 覚醒（伝説の隊長）</div>
+      <div class="modal-subtitle" id="awakenSubtitle"></div>
+      <div class="modal-detail" id="awakenDetail"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal('awakenModal')">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Shortfall Warning -->
+  <div class="modal-overlay" id="shortfallModal">
+    <div class="modal">
+      <div class="modal-title" id="shortfallTitle" style="color:var(--warn)"></div>
+      <div class="modal-subtitle" id="shortfallSubtitle"></div>
+      <div class="modal-detail" id="shortfallDetail"></div>
+      <div class="shortfall-choices">
+        <button class="btn-primary" id="shortfallConfirmBtn">それでもアサイン（士気-5）</button>
+        <button class="btn-secondary" onclick="closeModal('shortfallModal')">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Event -->
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal">
+      <div class="modal-title" id="eventTitle"></div>
+      <div class="modal-subtitle" id="eventSubtitle"></div>
+      <div class="modal-detail" id="eventDetail"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal('eventModal')">ACKNOWLEDGE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Hire -->
+  <div class="modal-overlay" id="hireModal">
+    <div class="modal">
+      <div class="modal-title">助っ人隊長を招く</div>
+      <div class="modal-subtitle">招集費用：200両。隊長の気性は後から変わりません。</div>
+      <div class="hire-options">
+        <div class="hire-card type-a" onclick="hire('A')">
+          <div class="hire-type-label">鬼殺し型</div>
+          <div class="hire-desc">高実績。失敗討伐任務・大規模討伐任務に強いが、仲間への当たりも強い。</div>
+          <div class="hire-cost">招集費用 200両</div>
+        </div>
+        <div class="hire-card type-b" onclick="hire('B')">
+          <div class="hire-type-label">仲間思い型</div>
+          <div class="hire-desc">穏健な仲間思い型。仲間を育て英雄候補を輩出するが、大規模討伐は苦手。</div>
+          <div class="hire-cost">招集費用 200両</div>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="closeModal('hireModal')">やめておく</button>
+    </div>
+  </div>
+
+  <!-- Modal: Shareholder Pressure -->
+  <div class="modal-overlay" id="shareholderModal">
+    <div class="modal">
+      <div class="modal-title" style="color:var(--accent)">📯 長老評議会からの圧力</div>
+      <div class="modal-subtitle" id="shareholderSubtitle"></div>
+      <div class="modal-detail" id="shareholderDetail"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal('shareholderModal')">承知しました</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Manager Profile -->
+  <div class="modal-overlay" id="mgrProfileModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-title" id="mgrProfileTitle" style="color:var(--accent2)"></div>
+      <div class="modal-subtitle" id="mgrProfileSubtitle"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px;">
+            討伐実績</div>
+          <div id="mgrProjectHistory"
+            style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:8px;">
+            仲間履歴</div>
+          <div id="mgrMemberHistory"
+            style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="closeModal('mgrProfileModal')">閉じる</button>
+    </div>
+  </div>
+
+  <!-- Modal: Member Transfer -->
+  <div class="modal-overlay" id="transferModal">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-title" style="color:var(--accent2)">👥 一行替え</div>
+      <div class="modal-subtitle" id="transferSubtitle">移す仲間と移動先を選択してください。移動のストレスで士気-5。</div>
+      <div id="transferMemberList"
+        style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div id="transferDestArea" style="display:none;margin-bottom:16px;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-bottom:6px;letter-spacing:2px;">
+          移動先の隊長</div>
+        <div id="transferDestBtns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </div>
+      <button class="btn-secondary" onclick="closeModal('transferModal')">閉じる</button>
+    </div>
+  </div>
+
+  <!-- Modal: Member List -->
+  <div class="modal-overlay" id="memberModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-title" id="memberModalTitle" style="color:var(--accent2)"></div>
+      <div class="modal-subtitle" id="memberModalSubtitle"></div>
+      <div class="member-list-grid" id="memberListGrid"></div>
+      <button class="btn-secondary" onclick="closeModal('memberModal')">閉じる</button>
+    </div>
+  </div>
+
+  <!-- Modal: Prospect Promotion -->
+  <div class="modal-overlay" id="prospectModal">
+    <div class="modal" style="max-width:500px;overflow:hidden;">
+      <!-- 川のアニメーション -->
+      <div id="donburakoCover" style="
+      position:relative;
+      background:linear-gradient(180deg,#b8e4f7 0%,#7ec8e3 40%,#5ab4d6 100%);
+      border-radius:12px 12px 0 0;
+      height:130px;
+      overflow:hidden;
+      margin:-32px -32px 20px -32px;
+    ">
+        <!-- 川面の波 -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:30px;opacity:0.4;">
+          <svg viewBox="0 0 400 30" preserveAspectRatio="none" style="width:100%;height:100%;">
+            <path d="M0,15 C50,5 100,25 150,15 C200,5 250,25 300,15 C350,5 400,25 400,15 L400,30 L0,30 Z"
+              fill="#3a9abf" />
+          </svg>
+        </div>
+        <div style="position:absolute;bottom:6px;left:0;right:0;height:20px;opacity:0.3;">
+          <svg viewBox="0 0 400 20" preserveAspectRatio="none" style="width:100%;height:100%;">
+            <path d="M0,10 C60,2 120,18 180,10 C240,2 300,18 360,10 L400,10 L400,20 L0,20 Z" fill="#2980b9" />
+          </svg>
+        </div>
+        <!-- 流れてくる果物 -->
+        <div id="donburakoFruit" style="
+        position:absolute;
+        font-size:56px;
+        top:20px;
+        animation: donburakoFloat 3s ease-in-out infinite, donburakoSlide 2.4s ease-out forwards;
+        filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+        line-height:1;
+      ">🍑</div>
+        <!-- どんぶらこテキスト -->
+        <div style="
+        position:absolute;top:12px;right:16px;
+        font-family:var(--mono);font-size:11px;
+        color:rgba(255,255,255,0.9);
+        letter-spacing:3px;font-weight:700;
+        text-shadow:0 1px 3px rgba(0,0,0,0.3);
+        animation:donburakoText 0.8s ease-out 0.5s both;
+      ">どんぶらこ…</div>
+      </div>
+
+      <div class="modal-title" style="color:var(--warn);margin-bottom:6px;" id="donburakoTitle">🍑 川から果物が…！</div>
+      <div class="modal-subtitle" style="margin-bottom:16px;" id="donburakoSubtitle"></div>
+
+      <!-- 果物の情報 -->
+      <div id="donburakoInfo" style="
+      background:var(--surface2);border-radius:10px;
+      padding:14px 16px;margin-bottom:18px;
+      border-left:4px solid var(--warn);
+      font-family:var(--mono);font-size:12px;line-height:1.9;
+    "></div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn-primary" id="donburakoWariBtn" onclick="donburakoWaru()" style="flex:1;">
+          🪓 割る（一行を迎える）
+        </button>
+        <button class="btn-secondary" onclick="donburakoMiwokuru()" style="flex:1;">
+          🌊 見送る
+        </button>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:10px;text-align:center;">
+        ⚠ 見送ると果物は川に流れ、二度と戻りません
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New Grad Recruit -->
+  <div class="modal-overlay" id="recruitModal">
+    <div class="modal">
+      <div class="modal-title" style="color:var(--good)">🍑 お供に加勢します！</div>
+      <div class="timer-bar-wrap" style="margin-bottom:12px;">
+        <div class="timer-label">
+          <span>⏱ 加勢決定時間</span>
+          <span class="timer-secs" id="recruitTimerSecs">30</span>
+        </div>
+        <div class="timer-bar">
+          <div class="timer-fill" id="recruitTimerFill" style="width:100%"></div>
+        </div>
+      </div>
+      <div class="modal-subtitle" id="recruitSubtitle"></div>
+      <div id="recruitList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+      <button class="btn-primary" onclick="closeModal('recruitModal')">加勢を迎える</button>
+    </div>
+  </div>
+
+  <!-- Modal: Member Voice -->
+  <div class="modal-overlay" id="memberVoiceModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-title" style="color:var(--accent2);font-size:14px;" id="memberVoiceFrom"></div>
+      <div style="font-size:22px;margin:16px 0;text-align:center;" id="memberVoiceFace"></div>
+      <div style="font-size:15px;line-height:1.8;color:var(--text);margin-bottom:20px;font-style:italic;"
+        id="memberVoiceText"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('memberVoiceModal')">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mega Project -->
+  <div class="modal-overlay" id="megaProjectModal">
+    <div class="modal" style="max-width:500px;">
+      <div style="text-align:center;font-size:36px;margin-bottom:8px;">📨</div>
+      <div class="modal-title" style="color:var(--warn);text-align:center;">👹 伝説の大討伐のお願い</div>
+      <div
+        style="background:var(--surface2);border-radius:10px;padding:16px;margin:16px 0;border-left:4px solid var(--warn);">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-bottom:8px;">依頼の言葉</div>
+        <div style="font-size:13px;line-height:1.8;color:var(--text);" id="megaProjectMessage"></div>
+      </div>
+      <div
+        style="font-family:var(--mono);font-size:12px;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:16px;"
+        id="megaProjectDetail"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('megaProjectModal')">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Flame Start -->
+  <div class="modal-overlay" id="flameModal" style="z-index:600;">
+    <div class="modal" style="max-width:400px;text-align:center;">
+      <div style="font-size:48px;margin-bottom:8px;">🔥</div>
+      <div class="modal-title" style="color:var(--accent);">討伐失敗！</div>
+      <div style="font-size:14px;color:var(--text);margin:12px 0 6px;" id="flameModalName"></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:20px;" id="flameModalDetail">
+      </div>
+      <button class="btn-primary" onclick="closeModal('flameModal')" style="background:var(--accent);">確認</button>
+    </div>
+  </div>
+
+  <!-- Modal: Reveal (実値・離脱者) -->
+  <div class="modal-overlay" id="revealModal">
+    <div class="modal" style="max-width:640px;max-height:88vh;overflow-y:auto;">
+      <div class="modal-title" style="color:var(--accent2);">🔍 実値・離脱者の記録</div>
+      <div id="revealModalContent" style="margin-top:12px;"></div>
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="btn-secondary" onclick="closeModal('revealModal')">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gameover -->
+  <div class="modal-overlay" id="gameoverModal">
+    <div class="modal" style="max-width: 580px; max-height: 88vh; overflow-y: auto;">
+      <div class="gameover">
+        <div class="gameover-title" id="gameoverTitle">GAME OVER</div>
+        <div class="score-label">最終財宝（両）</div>
+        <div class="gameover-score" id="gameoverScore"></div>
+        <div class="score-label" id="gameoverRating"></div>
+        <div style="margin: 12px 0; font-size: 13px; color: var(--text2); line-height: 1.8;" id="gameoverComment"></div>
+
+        <!-- 代表リーダーコメント -->
+        <div id="gameoverLeaderComment"
+          style="margin-bottom:16px; padding:14px 18px; background:var(--surface2); border-radius:10px; border-left:3px solid var(--accent2); font-size:13px; color:var(--text); line-height:1.7; display:none;">
+        </div>
+
+        <!-- 全リーダーホバーチップ -->
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-bottom:6px;letter-spacing:1px;">💬
+          各リーダーにホバーでコメント</div>
+        <div class="gameover-leaders" id="gameoverLeaders"></div>
+
+        <div
+          style="font-family: var(--mono); font-size: 11px; color: var(--text2); margin-bottom: 20px; background:var(--surface2); padding:16px; border-radius:8px; text-align:left; line-height:2;"
+          id="gameoverStats"></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="location.reload()">🔄 もう一度</button>
+          <button class="btn-secondary" onclick="closeModal('gameoverModal')">📋 結果を見返す</button>
+          <button class="btn-secondary" onclick="backToTitle()">🏠 タイトルへ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    // ============================================================
+    // TUTORIAL
+    // ============================================================
+    function showTutorial() {
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('tutorial').style.display = 'block';
+      tutInit();
+    }
+    function hideTutorial() {
+      document.getElementById('tutorial').style.display = 'none';
+    }
+    function startFromTutorial() {
+      hideTutorial();
+      document.getElementById('intro').style.display = 'flex';
+    }
+
+    // ============================================================
+    // チュートリアル固定データ
+    // ============================================================
+    const TUT_MGRS = [
+      {
+        id: 1, type: 'A', name: '桃太郎',
+        emoji: '💪',
+        faces: ['😐', '😟', '😄', '😐', '😟', '😐', '😄', '😩', '😄', '😐'],
+        assigned: null, successCount: 0,
+        members: [
+          { name: '赤鬼の牙丸', morale: 52, skill: 58, mv: 44 },
+          { name: '鉄砲玉之介', morale: 44, skill: 42, mv: 36 },
+          { name: '荒熊の権蔵', morale: 38, skill: 38, mv: 30 },
+        ]
+      },
+      {
+        id: 2, type: 'B', name: '柿太郎',
+        emoji: '😊',
+        faces: ['😄', '🙂', '😄', '😊', '😄', '😄', '🙂', '😄', '😊', '😄'],
+        assigned: null, successCount: 0,
+        members: [
+          { name: '白雉の舞子', morale: 82, skill: 56, mv: 42 },
+          { name: '花狸の鈴音', morale: 78, skill: 62, mv: 48 },
+          { name: '青狐の霞', morale: 88, skill: 44, mv: 36 },
+        ]
+      }
+    ];
+
+    const TUT_PROJECTS_Q1 = [
+      { id: 1, name: '峠の山鬼退治', scale: 'small', rev: 2400, req: 140, status: 'available', assignedMgr: null },
+      { id: 2, name: '浜辺の海鬼退治', scale: 'small', rev: 2800, req: 160, status: 'available', assignedMgr: null },
+    ];
+    const TUT_PROJECTS_Q2 = [
+      { id: 3, name: '森の影鬼退治', scale: 'small', rev: 2600, req: 150, status: 'available', assignedMgr: null },
+      { id: 4, name: '村境の門鬼退治', scale: 'small', rev: 2700, req: 155, status: 'available', assignedMgr: null },
+    ];
+
+    // ============================================================
+    // 状態
+    // ============================================================
+    let TUT_T = {
+      step: 1,
+      capital: 8000,
+      turn: 1,
+      timer: null,
+      memberOpened: false,
+      transferDone: false,
+      currentProjects: [],
+      log: [],
+    };
+
+    function tutMoraleFace(m) {
+      if (m >= 80) return '😄';
+      if (m >= 65) return '🙂';
+      if (m >= 50) return '😐';
+      if (m >= 35) return '😟';
+      if (m >= 20) return '😩';
+      return '💀';
+    }
+
+    // ============================================================
+    // 描画
+    // ============================================================
+    function tutRenderStepper() {
+      const el = document.getElementById('tut-stepper');
+      el.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const d = document.createElement('div');
+        d.className = 'step-dot' + (i < TUT_T.step ? ' done' : i === TUT_T.step ? ' active' : '');
+        d.textContent = i < TUT_T.step ? '✓' : i;
+        el.appendChild(d);
+        if (i < 5) { const l = document.createElement('div'); l.className = 'step-line'; el.appendChild(l); }
+      }
+    }
+
+    function tutSetHint(text, cls) {
+      const box = document.getElementById('tut-hintBox');
+      box.className = 'hint-box' + (cls ? ' hint-' + cls : '');
+      document.getElementById('tut-hintTitle').textContent = `STEP ${TUT_T.step} / 5`;
+      document.getElementById('tut-hintText').innerHTML = text;
+    }
+
+    function tutAddLog(type, text) {
+      TUT_T.log.unshift({ type, text });
+      tutRenderLog();
+    }
+
+    function tutRenderLog() {
+      const el = document.getElementById('tut-eventLog');
+      el.innerHTML = '';
+      TUT_T.log.slice(0, 12).forEach(e => {
+        const d = document.createElement('div');
+        d.style.cssText = `font-family:var(--mono);font-size:11px;padding:5px 8px;background:var(--surface2);border-left:3px solid ${e.type === 'good' ? 'var(--good)' : e.type === 'bad' ? 'var(--accent)' : 'var(--border)'};color:${e.type === 'good' ? 'var(--good)' : e.type === 'bad' ? 'var(--accent)' : 'var(--text2)'};border-radius:0 5px 5px 0;`;
+        d.textContent = e.text;
+        el.appendChild(d);
+      });
+    }
+
+    function tutRenderProjects() {
+      const pl = document.getElementById('tut-projectList');
+      pl.innerHTML = '';
+      TUT_T.currentProjects.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'project-card' + (p.status === 'completed' ? ' completed' : '');
+        card.id = `proj-${p.id}`;
+
+        const scaleLabel = '小型';
+        const mgrAssigned = p.assignedMgr ? TUT_MGRS.find(m => m.id === p.assignedMgr) : null;
+        const scoreColor = mgrAssigned ? 'var(--good)' : 'var(--text2)';
+
+        card.innerHTML = `
+      <div class="project-header">
+        <div class="project-name">${p.status === 'completed' ? '✓ ' : ''}${p.name}</div>
+        <div class="project-scale scale-small">${scaleLabel}</div>
+      </div>
+      <div class="project-meta">
+        <span>収益見込: <span>${p.rev}両</span></span>
+        <span>必要戦力: <span>${p.req}</span></span>
+        <span>担当: <span style="color:${mgrAssigned ? 'var(--accent2)' : 'var(--accent)'}">${mgrAssigned ? mgrAssigned.emoji + ' ' + mgrAssigned.name : '任務なし'}</span></span>
+      </div>
+      ${p.status === 'available' ? `
+        <div class="assign-area open">
+          <div class="assign-label" style="color:var(--accent);letter-spacing:1px;">
+            ↓ 隊長をアサイン（赤いボタンを押してください）
+          </div>
+          <div class="manager-select" id="assign-${p.id}"></div>
+        </div>` : ''}
+    `;
+
+        pl.appendChild(card);
+
+        if (p.status === 'available') {
+          const sel = document.getElementById(`assign-${p.id}`);
+          TUT_MGRS.forEach(m => {
+            const btn = document.createElement('button');
+            const isAssignedHere = p.assignedMgr === m.id;
+            const isAssignedElsewhere = m.assigned !== null && m.assigned !== p.id;
+            btn.className = `mgr-btn${isAssignedHere ? ' assigned-' + m.type.toLowerCase() : ''}`;
+            btn.id = `assignBtn-p${p.id}-m${m.id}`;
+            btn.textContent = `${m.emoji} ${m.name} [${m.type}]`;
+            btn.disabled = isAssignedElsewhere;
+            btn.onclick = () => tutDoAssign(m.id, p.id);
+            sel.appendChild(btn);
+          });
+
+          // Step1/3：押すべきボタンを赤くチカチカ
+          // proj1→A(桃太郎id=1)、proj2→B(柿太郎id=2) を推奨
+          if ((TUT_T.step === 1 || TUT_T.step === 3) && !p.assignedMgr) {
+            const targetMgrId = (TUT_T.currentProjects.indexOf(p) === 0) ? 1 : 2;
+            setTimeout(() => {
+              const targetBtn = document.getElementById(`assignBtn-p${p.id}-m${targetMgrId}`);
+              if (targetBtn && !targetBtn.disabled) {
+                targetBtn.classList.add('tut-highlight');
+                targetBtn.style.fontWeight = '800';
+              }
+            }, 50);
+          }
+        }
+      });
+    }
+
+    function tutRenderManagers(showTransfer) {
+      const ml = document.getElementById('tut-managerList');
+      ml.innerHTML = '';
+      TUT_MGRS.forEach(m => {
+        const card = document.createElement('div');
+        card.className = `manager-card type-${m.type.toLowerCase()}`;
+
+        const assignedProj = m.assigned ? TUT_T.currentProjects.find(p => p.id === m.assigned) : null;
+        const teamScore = Math.round(m.members.length * 52 * 1.0);
+
+        card.innerHTML = `
+      <div class="mgr-name-row">
+        <div class="mgr-name"><span style="font-size:18px;margin-right:6px;">${m.emoji}</span>${m.name}</div>
+        <div class="mgr-type">TYPE-${m.type}</div>
+      </div>
+      <div class="mgr-stats">
+        <span>担当: <span>${assignedProj ? assignedProj.name.slice(0, 8) + '…' : '任務なし'}</span></span>
+        <span>討伐: <span>${m.successCount}件</span></span>
+        <span>戦力: <span>${teamScore}</span></span>
+        <span>人数: <button class="team-count-btn" id="memberBtn-${m.id}" onclick="tutOpenMemberModal(${m.id})">${m.members.length}名 →</button></span>
+      </div>
+      <div class="member-faces">
+        ${m.faces.map(f => `<span class="member-face">${f}</span>`).join('')}
+      </div>
+      <div class="mgr-team" style="margin-top:6px;">
+        一行士気(報告値): <span style="color:${m.type === 'A' ? 'var(--warn)' : 'var(--good)'}">${m.type === 'A' ? '低下' : '良好'}</span>
+        ${showTransfer ? `<button class="swap-btn" id="transferBtn-${m.id}" style="margin-left:8px;" onclick="tutDoTransfer(${m.id})">👥 一行替え</button>` : ''}
+      </div>
+    `;
+        ml.appendChild(card);
+
+        // Step4ハイライト
+        if (TUT_T.step === 4 && !TUT_T.memberOpened) {
+          setTimeout(() => {
+            const btn = document.getElementById(`memberBtn-${m.id}`);
+            if (btn) btn.classList.add('tut-highlight');
+          }, 100);
+        }
+        if (TUT_T.step === 4 && TUT_T.memberOpened && showTransfer) {
+          setTimeout(() => {
+            const btn = document.getElementById(`transferBtn-${m.id}`);
+            if (btn) btn.classList.add('tut-highlight');
+          }, 100);
+        }
+      });
+    }
+
+    // ============================================================
+    // アサイン
+    // ============================================================
+    function tutDoAssign(mgrId, projId) {
+      const mgr = TUT_MGRS.find(m => m.id === mgrId);
+      const proj = TUT_T.currentProjects.find(p => p.id === projId);
+      if (!mgr || !proj) return;
+
+      // トグル
+      if (proj.assignedMgr === mgrId) {
+        proj.assignedMgr = null;
+        mgr.assigned = null;
+      } else {
+        if (mgr.assigned) {
+          const prev = TUT_T.currentProjects.find(p => p.id === mgr.assigned);
+          if (prev) prev.assignedMgr = null;
+        }
+        proj.assignedMgr = mgrId;
+        mgr.assigned = projId;
+        tutAddLog('info', `[第${TUT_T.turn}ターン] ${mgr.name}を「${proj.name}」にアサイン`);
+      }
+
+      tutRenderProjects();
+      tutRenderManagers(TUT_T.step >= 4);
+      // アサイン済みのハイライトをクリア
+      document.querySelectorAll('.tut-highlight').forEach(el => {
+        if (el.classList.contains('mgr-btn')) el.classList.remove('tut-highlight');
+      });
+      tutCheckCanProceed();
+    }
+
+    function tutCheckCanProceed() {
+      const allAssigned = TUT_T.currentProjects.every(p => p.assignedMgr !== null);
+      const btn = document.getElementById('tut-nextBtn');
+      if (TUT_T.step === 1 && allAssigned) {
+        TUT_T.step = 2;
+        tutRenderStepper();
+        tutSetHint('✅ アサイン完了！<strong>次の討伐へ</strong> を押してターンを進めましょう。', 'good');
+        btn.disabled = false;
+        btn.classList.add('tut-highlight');
+      } else if (TUT_T.step === 3 && allAssigned) {
+        btn.disabled = false;
+        btn.classList.add('tut-highlight');
+      }
+    }
+
+    // ============================================================
+    // NEXT
+    // ============================================================
+    function tutOnNext() {
+      const btn = document.getElementById('tut-nextBtn');
+      btn.classList.remove('tut-highlight');
+
+      if (TUT_T.step === 2) {
+        tutCompleteQ1();
+      } else if (TUT_T.step === 3) {
+        clearInterval(TUT_T.timer);
+        document.getElementById('tut-timerWrap').style.display = 'none';
+        tutCompleteQ2();
+      } else if (TUT_T.step === 4) {
+        document.getElementById('tut-doneModal').classList.add('open');
+      }
+    }
+
+    function tutCompleteQ1() {
+      // 収益加算
+      TUT_T.currentProjects.forEach(p => { p.status = 'completed'; });
+      let earned = 0;
+      TUT_MGRS.forEach(m => { if (m.assigned) { const p = TUT_T.currentProjects.find(q => q.id === m.assigned); if (p) { earned += p.rev; m.successCount++; } } });
+      TUT_T.capital += earned;
+      document.getElementById('tut-kpiCapital').textContent = TUT_T.capital.toLocaleString() + '両';
+
+      tutAddLog('good', `[第1ターン] 討伐完了 → +${earned}両`);
+      tutRenderProjects();
+
+      // 完了バナー
+      const banner = document.createElement('div');
+      banner.className = 'complete-banner';
+      banner.innerHTML = `🎉 討伐完了！ +${earned}両`;
+      document.getElementById('tut-app').insertBefore(banner, document.getElementById('tut-app').children[2]);
+
+      setTimeout(() => {
+        banner.remove();
+        // 第2ターンへ
+        TUT_T.turn = 2;
+        TUT_T.step = 3;
+        document.getElementById('tut-kpiTurn').textContent = '第2ターン';
+        TUT_MGRS.forEach(m => m.assigned = null);
+        TUT_T.currentProjects = JSON.parse(JSON.stringify(TUT_PROJECTS_Q2));
+        tutRenderStepper();
+        tutSetHint(
+          `🎉 第1ターンが完了しました！仲間のスキルと士気が少し上がりました。<br><br>
+       新しい討伐依頼が来ています。もう一度アサインして <strong>次の討伐へ</strong> を押しましょう。<br>
+       今回は<strong>タイマーが30秒</strong>で動きます。時間切れでも自動で次に進みます。`,
+          'good'
+        );
+        document.getElementById('tut-nextBtn').disabled = true;
+        document.getElementById('tut-timerWrap').style.display = 'block';
+        tutRenderProjects();
+        tutRenderManagers(false);
+        tutStartTimer();
+      }, 2000);
+    }
+
+    function tutCompleteQ2() {
+      TUT_T.currentProjects.forEach(p => { p.status = 'completed'; });
+      let earned = 0;
+      TUT_MGRS.forEach(m => { if (m.assigned) { const p = TUT_T.currentProjects.find(q => q.id === m.assigned); if (p) { earned += p.rev; m.successCount++; } } });
+      TUT_T.capital += earned;
+      document.getElementById('tut-kpiCapital').textContent = TUT_T.capital.toLocaleString() + '両';
+      document.getElementById('tut-kpiTurn').textContent = '第3ターン';
+      tutAddLog('good', `[第2ターン] 討伐完了 → +${earned}両`);
+
+      TUT_T.step = 4;
+      TUT_MGRS.forEach(m => m.assigned = null);
+      TUT_T.currentProjects = [];
+      tutRenderStepper();
+      tutSetHint(
+        `👥 <strong>仲間の状態</strong>を確認しましょう。<br><br>
+     顔文字で士気がわかります：😄 良好　😐 普通　😟 低下　😩 危険　💀 限界<br><br>
+     右パネルの一行の人数ボタンをクリックして仲間詳細を確認し、<strong>一行替えボタン</strong>も押してみましょう。`,
+        'warn'
+      );
+      document.getElementById('tut-nextBtn').disabled = true;
+      document.getElementById('tut-nextBtn').textContent = '次へ →';
+      tutRenderProjects();
+      tutRenderManagers(true);
+    }
+
+    // ============================================================
+    // タイマー
+    // ============================================================
+    function tutStartTimer() {
+      let secs = 30;
+      tutUpdateTimer(secs);
+      TUT_T.timer = setInterval(() => {
+        secs--;
+        tutUpdateTimer(secs);
+        if (secs <= 0) {
+          clearInterval(TUT_T.timer);
+          document.getElementById('tut-nextBtn').disabled = false;
+          setTimeout(() => tutOnNext(), 500);
+        }
+      }, 1000);
+    }
+
+    function tutUpdateTimer(secs) {
+      document.getElementById('tut-timerSecs').textContent = secs;
+      const pct = (secs / 30) * 100;
+      const fill = document.getElementById('tut-timerFill');
+      fill.style.width = pct + '%';
+      fill.className = 'timer-fill' + (pct <= 20 ? ' danger' : pct <= 40 ? ' warn' : '');
+      document.getElementById('tut-timerSecs').style.color = pct <= 20 ? 'var(--accent)' : pct <= 40 ? 'var(--warn)' : 'var(--text2)';
+    }
+
+    // ============================================================
+    // 仲間モーダル
+    // ============================================================
+    function tutOpenMemberModal(mgrId) {
+      const mgr = TUT_MGRS.find(m => m.id === mgrId);
+      document.getElementById('tut-memberModalTitle').textContent = mgr.emoji + ' ' + mgr.name + ' — 一行仲間';
+      const grid = document.getElementById('tut-memberListGrid');
+      grid.innerHTML = '';
+      mgr.members.forEach(t => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:28px 1fr 1fr;gap:8px;align-items:center;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;';
+        row.innerHTML = `
+      <div style="font-size:20px;">${tutMoraleFace(t.morale)}</div>
+      <div><div style="font-size:12px;font-weight:700;">${t.name}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text2);">士気: ${t.morale}</div></div>
+      <div>
+        <div class="skill-bar-label"><span>スキル</span><span>${t.skill}</span></div>
+        <div class="skill-bar"><div class="skill-bar-fill" style="width:${t.skill}%"></div></div>
+        <div class="skill-bar-label" style="margin-top:3px;"><span style="color:var(--text2);">忠誠心</span><span style="color:var(--text2);">${100 - t.mv}</span></div>
+        <div class="skill-bar"><div class="skill-bar-fill" style="width:${t.mv}%;background:var(--text2);"></div></div>
+      </div>
+    `;
+        grid.appendChild(row);
+      });
+
+      // 確認ボタンを初期ロック
+      const confirmBtn = document.getElementById('tut-confirmMemberBtn');
+      confirmBtn.style.opacity = '0.4';
+      confirmBtn.style.pointerEvents = 'none';
+      confirmBtn.classList.remove('tut-highlight');
+
+      document.getElementById('tut-memberModal').classList.add('open');
+      TUT_T.memberOpened = true;
+
+      if (TUT_T.step === 4) {
+        // スクロール矢印を表示
+        const arrow = document.getElementById('tut-scrollArrow');
+        arrow.style.display = 'block';
+
+        // スクロールを監視して一番下に着いたら矢印を消す
+        grid.addEventListener('scroll', tutOnMemberScroll, { once: false });
+
+        // 1秒後に確認ボタンを点滅で有効化
+        setTimeout(() => {
+          arrow.style.display = 'none';
+          confirmBtn.style.opacity = '1';
+          confirmBtn.style.pointerEvents = 'auto';
+          confirmBtn.classList.add('tut-highlight');
+        }, 1000);
+
+        tutSetHint(
+          `✅ 仲間の状態を確認できました！<br><br>
+       次は<strong>一行替えボタン</strong>を押してみましょう。消耗している仲間を別一行に移して回復させることができます。`,
+          'warn'
+        );
+        tutRenderManagers(true);
+      }
+    }
+
+    function tutOnMemberScroll() {
+      const grid = document.getElementById('tut-memberListGrid');
+      const arrow = document.getElementById('tut-scrollArrow');
+      if (!grid || !arrow) return;
+      const isBottom = grid.scrollTop + grid.clientHeight >= grid.scrollHeight - 10;
+      if (isBottom) arrow.style.display = 'none';
+    }
+
+    function tutCloseMemberModal() {
+      document.getElementById('tut-memberModal').classList.remove('open');
+    }
+
+    function tutDoTransfer(mgrId) {
+      TUT_T.transferDone = true;
+      const mgr = TUT_MGRS.find(m => m.id === mgrId);
+      tutAddLog('info', `[第3ターン] ${mgr.name}一行の仲間を一行替え`);
+      tutSetHint(
+        `✅ 一行替え完了！<br><br>
+     本編では、A一行で消耗している仲間をB一行に移して回復させたり、B一行で長くいる仲間をA一行に移して成長の刺激を与える戦略が有効です。<br><br>
+     <strong>「次へ」</strong>を押してチュートリアルを完了しましょう。`,
+        'good'
+      );
+      document.getElementById('tut-nextBtn').disabled = false;
+      document.getElementById('tut-nextBtn').classList.add('tut-highlight');
+      tutRenderManagers(true);
+    }
+
+    // ============================================================
+    // リスタート
+    // ============================================================
+    function tutRestartTutorial() {
+      document.getElementById('tut-doneModal').classList.remove('open');
+      TUT_T = { step: 1, capital: 8000, turn: 1, timer: null, memberOpened: false, transferDone: false, currentProjects: [], log: [] };
+      clearInterval(TUT_T.timer);
+      TUT_MGRS.forEach(m => { m.assigned = null; m.successCount = 0; });
+      tutInit();
+    }
+
+    // ============================================================
+    // 初期化
+    // ============================================================
+    function tutInit() {
+      TUT_T.currentProjects = JSON.parse(JSON.stringify(TUT_PROJECTS_Q1));
+      tutRenderStepper();
+      tutSetHint(
+        `<strong>鬼殺し型（💪）</strong> は高い戦力を持ち、大型討伐もこなせます。ただし一行仲間を消耗させやすいです。<br>
+     <strong>仲間思い型（😊）</strong> は戦力はやや低めですが、一行の結束が良く仲間が育ちやすいです。<br><br>
+     まず2つの討伐任務にそれぞれ隊長をアサインしましょう。<strong>ASSIGN のボタン</strong>を押してください。`,
+        ''
+      );
+      document.getElementById('tut-kpiCapital').textContent = '8,000両';
+      document.getElementById('tut-kpiTurn').textContent = '第1ターン';
+      document.getElementById('tut-nextBtn').disabled = true;
+      document.getElementById('tut-nextBtn').textContent = '次の討伐へ →';
+      document.getElementById('tut-timerWrap').style.display = 'none';
+      tutRenderLog();
+      tutRenderProjects();
+      tutRenderManagers(false);
+    }
+
+    // ============================================================
+    // FLOATING EMOJI (intro screen)
+    // ============================================================
+    (function spawnEmojis() {
+      const pool = [
+        '🍑', '🍑', '🍑', '🍑', '🍑',
+        '🍓', '🍓', '🍓', '🍓',
+        '🍇', '🍇', '🍇',
+        '🍊', '🍊',
+        '🍋', '🍋',
+        '🥝',
+        '🍈',
+        '🫐',
+        '🍒',
+        '👹', '👹',
+        '🎋',
+        '✨',
+        '😟',
+        '💀',  // レア
+      ];
+
+      const field = document.getElementById('emojiField');
+      if (!field) return;
+
+      function spawn() {
+        const el = document.createElement('div');
+        el.className = 'emoji-float';
+        el.textContent = pool[Math.floor(Math.random() * pool.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = '100vh';
+        const duration = 8 + Math.random() * 12;
+        const delay = Math.random() * 3;
+        el.style.animationDuration = duration + 's';
+        el.style.animationDelay = delay + 's';
+        el.style.fontSize = (16 + Math.random() * 20) + 'px';
+        field.appendChild(el);
+        setTimeout(() => el.remove(), (duration + delay) * 1000);
+      }
+
+      // 初期スポーン
+      for (let i = 0; i < 20; i++) {
+        setTimeout(spawn, Math.random() * 4000);
+      }
+      // 定期スポーン
+      setInterval(spawn, 600);
+    })();
+
+    // ============================================================
+    // GAME STATE
+    // ============================================================
+    let state = {};
+
+    const NAMES_A = ['桃太郎', '柿太郎', '林檎太郎', '西瓜太郎', '葡萄太郎'];
+    const NAMES_B = ['苺太郎', '蜜柑太郎', '梨太郎', '杏太郎', '無花果太郎'];
+    const MEMBER_FIRST = ['犬助', '猿吉', '雉郎', '狸八', '狐次', '熊蔵', '鹿一', '兎丸', '亀吉', '鶴子', '雀花', '燕奈', '鷹雄', '鳩美', '鯉助', '鮒吉', '蛙丸', '蛇次', '蜂郎', '蝶子'];
+    const MEMBER_LAST = ['山', '川', '森', '里', '浜', '岡', '野', '坂', '谷', '峰', '嶋', '浦', '江', '沢', '池', '原', '丘', '崎', '瀬', '港'];
+    function memberName() { return choose(MEMBER_LAST) + choose(MEMBER_FIRST); }
+    const PROJECT_NAME_POOL = [
+      '鬼ヶ島西岸の鬼', '温泉場に居座る鬼', '峠の関所鬼',
+      '村はずれの山鬼', '海辺の荒くれ鬼', '神社を占拠した鬼',
+      '宿場町の鬼一味', '川上から来た大鬼', '山賊まがいの小鬼集団',
+      '橋の下の河童鬼', '廃城の鬼大将', '田畑を荒らす鬼ども',
+      '都に現れた鬼', '港を塞ぐ海鬼', '山頂に陣取る鬼神',
+      '霧の森の鬼', '洞窟に潜む鬼', '滝壺の水鬼',
+      '砂浜の夜鬼', '古戦場の怨霊鬼', '雪山の氷鬼',
+      '火山の炎鬼', '湿地の泥鬼', '竹林の影鬼',
+      '廃村の鬼塚', '嵐の夜の鬼', '満月の鬼踊り',
+      '村祭りに乗り込む鬼', '鬼の集会所急襲', '隠れ里の鬼頭目'
+    ];
+
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function choose(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function fmt(n) {
+      const abs = Math.abs(n);
+      const sign = n < 0 ? '-' : '';
+      if (abs >= 10000) return `${sign}${(abs / 10000).toFixed(1)}万両`;
+      if (abs >= 1000) return `${sign}${(abs / 1000).toFixed(1)}千両`;
+      if (abs >= 100) return `${sign}${abs}両`;
+      return `${sign}${abs}両`;
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    function withdrawProject(projectId) {
+      const p = state.projects.find(q => q.id === projectId);
+      if (!p || p.status !== 'failed') return;
+      const penalty = Math.round(p.baseRevenue * 3.5);
+      if (!confirm(`「${p.name}」から撤退します。\n\n撤退費用：${fmt(penalty)}（収益見込みの3.5倍）\n村の名声：-15\n一行全員の士気：-20〜-30\n\nよろしいですか？`)) return;
+      state.capital -= penalty;
+      p._extinguished = true;
+      p.status = 'extinguished';
+      const aFighter = state.managers.find(m => m.assignedProject === p.id);
+      if (aFighter) aFighter.assignedProject = null;
+      // 士気全員低下
+      state.managers.forEach(mgr => {
+        mgr.team.filter(t => t.active).forEach(t => { t.morale = Math.max(0, t.morale - rand(20, 30)); });
+      });
+      // レピュテーション -15
+      state.reputation = Math.max(0, (state.reputation || 80) - 15);
+      state.log.unshift({ type: 'bad', text: `[第${state.turn}ターン] 「${p.name}」から撤退 → 撤退費用 -${fmt(penalty)} 村の名声-15 全員士気低下` });
+      render();
+    }
+
+    function openRevealModal() {
+      const content = document.getElementById('revealModalContent');
+      content.innerHTML = '';
+      const reveal = document.getElementById('gameoverMemberReveal');
+      const quit = document.getElementById('gameoverQuitReveal');
+      if (reveal) content.appendChild(reveal.cloneNode(true));
+      if (quit) content.appendChild(quit.cloneNode(true));
+      if (!reveal && !quit) content.innerHTML = '<div style="font-family:var(--mono);font-size:12px;color:var(--text2);">データがありません。先にゲームを終了してください。</div>';
+      document.getElementById('revealModal').classList.add('open');
+    }
+
+    function backToTitle() {
+      if (!confirm('タイトルに戻りますか？現在の進行状況は失われます。')) return;
+      stopAllTimers();
+      closeModal('gameoverModal');
+      document.getElementById('game').style.display = 'none';
+      document.getElementById('intro').style.display = 'flex';
+    }
+
+    function startGame(maxTurns) {
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      state = {
+        turn: 1,
+        maxTurns: maxTurns || 20,
+        capital: 8000,
+        totalRevenue: 0,
+        totalQuit: 0,
+        totalProjects: 0,
+        totalSuccess: 0,
+        totalPromotions: 0,
+        reputation: 80,        // レピュテーション（0〜100）
+        totalHiredGrads: 0,    // 加勢イベント累計
+        totalMidHires: 0,      // 他村からの助っ人累計
+        managers: [],
+        projects: [],
+        log: [],
+        usedProjectNames: [],
+        nextManagerId: 1,
+        nextProjectId: 1,
+        nextMemberId: 1,
+        hireCount: { A: 0, B: 0 },
+        hireExternal: { A: 0, B: 0 }, // 外部招集のみカウント
+        pendingProspects: [],
+        _completedSets: [],
+      };
+
+      // Initial managers — 各10名固定（合計20名）
+      addManager('A', '桃太郎', 10);
+      addManager('B', '柿太郎', 10);
+
+      // Initial projects
+      generateProjects(3);
+
+      render();
+      startTurnTimer();
+    }
+
+    function addManager(type, name, fixedTeamSize) {
+      const id = state.nextManagerId++;
+      const teamSize = fixedTeamSize || rand(6, 12);
+      const team = [];
+      for (let i = 0; i < teamSize; i++) {
+        team.push({
+          id: state.nextMemberId++,
+          name: memberName(),
+          morale: rand(60, 90),
+          active: true,
+          tenure: rand(1, 8),
+          skill: rand(30, 70),
+          marketValue: rand(30, 70),
+          resilience: rand(10, 90),
+          chemistry: rand(20, 80),
+          aUnderTurns: 0,
+          bUnderTurns: 0,
+          awakened: false,
+          isProspect: false,
+          vip: false
+        });
+      }
+      state.managers.push({
+        id,
+        name: name || (type === 'A' ? choose(NAMES_A) : choose(NAMES_B)),
+        type,
+        assignedProject: null,
+        revenue: type === 'A' ? rand(8000, 12000) : rand(4000, 6000),
+        team,
+        successCount: 0,
+        burnoutCount: 0,
+        _prevQuit: 0,
+        discernment: type === 'A'
+          ? (Math.random() < 0.15 ? rand(61, 90) : rand(20, 60)) // A型: 低め、稀に高い
+          : (Math.random() < 0.15 ? rand(20, 39) : rand(40, 90)), // B型: 高め、稀に低い
+        projectHistory: [],
+        memberHistory: [],
+      });
+      state.hireCount[type]++;
+    }
+
+    function generateProjects(n) {
+      // Reset used names if pool is nearly exhausted
+      if (PROJECT_NAME_POOL.filter(p => !state.usedProjectNames.includes(p)).length < 3) {
+        state.usedProjectNames = [];
+      }
+      const available = PROJECT_NAME_POOL.filter(p => !state.usedProjectNames.includes(p));
+
+      // 成功実績に応じて大型討伐出現率を上げる（連鎖・紹介受注）
+      const successCount = state.totalSuccess || 0;
+      const largeProbability = successCount >= 10 ? 0.58
+        : successCount >= 6 ? 0.50
+          : successCount >= 3 ? 0.42
+            : 0.35;
+
+      for (let i = 0; i < n && available.length > 0; i++) {
+        const name = choose(available);
+        available.splice(available.indexOf(name), 1);
+        state.usedProjectNames.push(name);
+        const scale = state.turn <= 3
+          ? (Math.random() < 0.5 ? 'medium' : 'small')
+          : (Math.random() < largeProbability ? 'large' : Math.random() < 0.5 ? 'medium' : 'small');
+        const duration = scale === 'large' ? rand(2, 3) : scale === 'medium' ? rand(1, 2) : 1;
+        const baseRev = scale === 'large' ? rand(9000, 13000) : scale === 'medium' ? rand(4000, 7000) : rand(2000, 4000);
+        const flameRisk = scale === 'large' ? 0.30 : scale === 'medium' ? 0.18 : 0.10;
+        const requiredScore = scale === 'large' ? rand(700, 900) : scale === 'medium' ? rand(350, 450) : rand(150, 200);
+        const requiresA = scale === 'large' && Math.random() < 0.70;
+        state.projects.push({
+          id: state.nextProjectId++,
+          name,
+          scale,
+          duration,
+          turnsLeft: duration,
+          baseRevenue: baseRev,
+          flameRisk,
+          requiredScore,
+          requiresA,
+          assignedManager: null,
+          status: 'available',
+          progress: 0,
+          progressPenalty: 0,
+          flamingTurns: 0,
+        });
+      }
+
+      // 特大討伐の発生チェック（大型連続成功2件以上、かつ未発生）
+      tryGenerateMegaProject();
+    }
+
+    const MEGA_PROJECT_NAMES = [
+      '鬼ヶ島総大将の討伐',
+      '百鬼夜行の完全制圧',
+      '四島連合鬼軍の殲滅',
+      '大鬼神との最終決戦',
+      '幻の鬼城への強行突入',
+    ];
+
+    const MEGA_PROJECT_MESSAGES = [
+      'これまでの武勲を聞き及んでおります。我々の村をぜひ救っていただきたい。桃太郎どのに頼むほかないと思いました。',
+      '村々の噂はここにも届いております。幾人もの者があなたがたを強く推してくれました。ぜひ力を貸してください。',
+      'これほどの鬼を討てる一行は、正直あなたがたしかおりません。どうかよろしくお願いいたします。',
+      'あなたの村の鬼退治の能力には定評があります。我々も全力で支援しますので、ぜひ引き受けてください。',
+    ];
+
+    function tryGenerateMegaProject() {
+      if (state._megaProjectGenerated) return;
+      if (state.turn < 4) return;
+
+      // 大型討伐の連続成功を確認
+      const recentLargeSuccess = state.projects.filter(p =>
+        p.scale === 'large' && p.status === 'completed' &&
+        p._completedTurn && p._completedTurn >= state.turn - 4
+      ).length;
+
+      if (recentLargeSuccess >= 2 && Math.random() < 0.40) {
+        state._megaProjectGenerated = true;
+        const name = choose(MEGA_PROJECT_NAMES);
+        const megaRev = rand(18000, 25000); // 通常大型の1.5〜2倍
+        const megaProject = {
+          id: state.nextProjectId++,
+          name,
+          scale: 'mega',
+          duration: rand(3, 4),
+          turnsLeft: rand(3, 4),
+          baseRevenue: megaRev,
+          flameRisk: 0.35,
+          requiredScore: rand(1000, 1300),
+          requiresA: true,
+          assignedManager: null,
+          status: 'available',
+          progress: 0,
+          progressPenalty: 0,
+          flamingTurns: 0,
+        };
+        megaProject.turnsLeft = megaProject.duration;
+        state.projects.push(megaProject);
+        state._pendingMegaAnnounce = {
+          name,
+          rev: megaRev,
+          message: choose(MEGA_PROJECT_MESSAGES),
+          duration: megaProject.duration
+        };
+      }
+    }
+
+    // ============================================================
+    // MORALE REPORTING (with noise)
+    // ============================================================
+    function getMoraleReport(realMorale) {
+      // Noise: A-type managers have higher chance of underreporting problems
+      const noise = rand(-20, 10); // bias toward false positive
+      const reported = Math.max(0, Math.min(100, realMorale + noise));
+      if (reported >= 75) return { label: '良好', cls: 'morale-high', val: reported };
+      if (reported >= 50) return { label: '普通', cls: 'morale-mid', val: reported };
+      if (reported >= 25) return { label: '低下', cls: 'morale-low', val: reported };
+      return { label: '危機的', cls: 'morale-low', val: reported };
+    }
+
+    function getOrgMorale() {
+      let total = 0, count = 0;
+      state.managers.forEach(m => {
+        m.team.filter(t => t.active).forEach(t => { total += t.morale; count++; });
+      });
+      return count ? total / count : 50;
+    }
+
+    function calcTeamScore(mgr) {
+      const active = mgr.team.filter(t => t.active);
+      if (active.length === 0) return 0;
+      const avgSkill = active.reduce((s, t) => s + t.skill, 0) / active.length;
+      const avgMorale = active.reduce((s, t) => s + t.morale, 0) / active.length;
+      const moraleMult = avgMorale >= 75 ? 1.2 : avgMorale >= 50 ? 1.0 : avgMorale >= 30 ? 0.7 : 0.4;
+      let score = Math.round(active.length * avgSkill * moraleMult);
+
+      // エースボーナス：スキル85以上の仲間がいると戦力+20%
+      const aces = active.filter(t => t.skill >= 85);
+      if (aces.length > 0) {
+        score = Math.round(score * (1 + aces.length * 0.20));
+      }
+
+      return score;
+    }
+
+    // ============================================================
+    // NEXT TURN
+    // ============================================================
+    function nextTurn() {
+      stopAllTimers();
+      const events = [];
+      let turnRevenue = 0;
+      let turnQuit = 0;
+
+      // Reset per-turn promotion counter
+      state.turnPromotions = 0;
+
+      // Process active projects
+      state.projects.forEach(p => {
+        if (p.status !== 'active') return;
+        const mgr = state.managers.find(m => m.id === p.assignedManager);
+        if (!mgr) return;
+
+        // --- 毎ターン: 一行の戦力評価 ---
+        const score = calcTeamScore(mgr);
+        const required = p.requiredScore || 0;
+        const shortfallRate = required > 0 ? Math.max(0, (required - score) / required) : 0;
+
+        // 不足に応じて失敗リスク加算・収益ペナルティを蓄積
+        if (shortfallRate > 0.30) {
+          p.flameRisk = Math.min(0.95, p.flameRisk + 0.12);
+          p.progressPenalty = (p.progressPenalty || 0) + 0.25;
+          if (!p._warnedShortfall) {
+            events.push({ type: 'warn', text: `[第${state.turn}ターン] 「${p.name}」一行の戦力が大幅不足(${score}/${required}) → 失敗リスク↑` });
+            p._warnedShortfall = true;
+          }
+        } else if (shortfallRate > 0.10) {
+          p.flameRisk = Math.min(0.95, p.flameRisk + 0.05);
+          p.progressPenalty = (p.progressPenalty || 0) + 0.10;
+        } else if (shortfallRate === 0) {
+          // 充足ボーナス
+          p.flameRisk = Math.max(0.02, p.flameRisk - 0.03);
+        }
+
+        p.turnsLeft--;
+        p.progress = Math.round(((p.duration - p.turnsLeft) / p.duration) * 100);
+
+        if (p.turnsLeft <= 0) {
+          // Resolve project
+          const isA = mgr.type === 'A';
+          let flameRisk = p.flameRisk;
+          if (isA) flameRisk *= 0.6;
+
+          const flamed = Math.random() < flameRisk;
+          if (flamed) {
+            p.status = 'failed';
+            const penalty = Math.round(p.baseRevenue * 0.3);
+            turnRevenue -= penalty;
+            state.capital -= penalty;
+            events.push({ type: 'bad', text: `[第${state.turn}ターン] 「${p.name}」討伐失敗 → -${fmt(penalty)} のペナルティ` });
+            mgr.team.filter(t => t.active).forEach(t => { t.morale -= rand(15, 25); });
+            if (!mgr.projectHistory) mgr.projectHistory = [];
+            mgr.projectHistory.push({ name: p.name, scale: p.scale, result: 'failed', turn: state.turn });
+            // 失敗ポップアップ用フラグ
+            state._flameEvent = state._flameEvent || [];
+            state._flameEvent.push({ name: p.name, penalty, mgrName: mgr.name });
+          } else {
+            p.status = 'completed';
+            let rev = p.baseRevenue;
+            if (isA && p.scale === 'large') rev = Math.round(rev * 1.15);
+            if (!isA && p.scale === 'small') rev = Math.round(rev * 1.05);
+            // レピュテーション収益補正（80未満で最大-20%）
+            const rep = state.reputation || 80;
+            if (rep < 80) {
+              const repMult = 0.8 + rep * 0.002;
+              rev = Math.round(rev * repMult);
+            }
+            // 蓄積ペナルティを収益に反映
+            const penaltyRate = Math.min(0.5, p.progressPenalty || 0);
+            if (penaltyRate > 0) {
+              rev = Math.round(rev * (1 - penaltyRate));
+              events.push({ type: 'warn', text: `[第${state.turn}ターン] 「${p.name}」完了(戦力不足により収益-${Math.round(penaltyRate * 100)}%) → +${fmt(rev)}` });
+            } else {
+              events.push({ type: 'good', text: `[第${state.turn}ターン] 「${p.name}」完了 → +${fmt(rev)}${rep < 80 ? ` (村の名声低下により収益${Math.round((0.8 + rep * 0.002) * 100)}%)` : ''}` });
+            }
+            turnRevenue += rev;
+            state.capital += rev;
+            mgr.successCount++;
+            state.totalSuccess++;
+            // レピュテーション回復
+            const repGain = p.scale === 'large' || p.scale === 'mega' ? 5 : 3;
+            state.reputation = Math.min(100, (state.reputation || 80) + repGain);
+            mgr._lastCompletedProject = p.id;
+            p._completedTurn = state.turn;
+            if (!mgr.projectHistory) mgr.projectHistory = [];
+            mgr.projectHistory.push({ name: p.name, scale: p.scale, result: 'success', turn: state.turn, rev });
+            if (!isA) {
+              mgr.team.filter(t => t.active).forEach(t => { t.morale = Math.min(100, t.morale + rand(3, 8)); });
+            }
+          }
+          state.totalProjects++;
+          mgr.assignedProject = null;
+        }
+      });
+
+      // Morale decay from A-type managers
+      state.managers.forEach(mgr => {
+        if (mgr.type !== 'A') return;
+        if (!mgr.assignedProject) return;
+        mgr.team.filter(t => t.active).forEach(t => {
+          const res = t.resilience || 50;
+          // 胆力が高いほど士気低下が緩和される（最大50%軽減）
+          const decayBase = rand(8, 16);
+          const decayReduced = Math.round(decayBase * (1 - (res / 200)));
+          t.morale -= Math.max(2, decayReduced);
+        });
+      });
+
+      // Natural morale drift
+      state.managers.forEach(mgr => {
+        mgr.team.filter(t => t.active).forEach(t => {
+          if (mgr.type === 'B') t.morale = Math.min(100, t.morale + rand(1, 4));
+          t.morale = Math.max(0, t.morale);
+        });
+      });
+
+      // Quit calculation using the C(n) model
+      state.managers.forEach(mgr => {
+        const activeTeam = mgr.team.filter(t => t.active);
+        const T = activeTeam.length;
+        if (T === 0) return;
+
+        activeTeam.forEach(t => {
+          let quitProb = 0;
+          if (t.morale < 20) quitProb = 0.55;
+          else if (t.morale < 35) quitProb = 0.30;
+          else if (t.morale < 50) quitProb = 0.15;
+          else if (t.morale < 65) quitProb = 0.05;
+          else quitProb = 0.01;
+
+          // Contagion: higher quit rate if many already left
+          const quitRatio = mgr.team.filter(t2 => !t2.active).length / mgr.team.length;
+          quitProb = Math.min(0.9, quitProb * (1 + quitRatio * 1.5));
+
+          // 忠誠心が高いほど離脱しやすい
+          const mv = t.marketValue || t.skill;
+          const mvMult = mv >= 80 ? 1.4 : mv >= 60 ? 1.2 : mv >= 40 ? 1.0 : 0.8;
+          quitProb = Math.min(0.9, quitProb * mvMult);
+
+          // エース優遇中は離脱確率半減
+          if (t.vip) quitProb *= 0.5;
+
+          // 相性が高いと離脱しにくい（隠し効果）
+          const chem = t.chemistry || 50;
+          if (chem >= 70) quitProb *= 0.8;
+          else if (chem <= 25) quitProb *= 1.2;
+
+          if (Math.random() < quitProb) {
+            t.active = false;
+            t.quitTurn = state.turn;
+            t.quitSnapshot = {
+              skill: t.skill,
+              marketValue: t.marketValue || t.skill,
+              resilience: t.resilience || 50,
+              morale: t.morale,
+              chemistry: t.chemistry || 50,
+              label: t.label || null,
+            };
+            turnQuit++;
+            state.totalQuit++;
+            mgr.burnoutCount++;
+            state.reputation = Math.max(0, (state.reputation || 80) - 2);
+            if (!mgr.memberHistory) mgr.memberHistory = [];
+            mgr.memberHistory.push({ name: t.name, event: 'quit', turn: state.turn });
+
+            // 離脱メッセージ
+            const quitMessages = t.morale < 20
+              ? ['「もう限界です」と言い残して去った。', '無言で荷物をまとめて去った。', '「体が動かなくなってしまいました」と連絡があった。']
+              : t.morale < 35
+                ? ['「他にやりたいことが見つかりました」と言い残して去った。', '別の村に引き抜かれ、新たな道へ旅立った。', '「少し休みたいです」と言い残して去った。']
+                : ['新天地を求めて一行を去った。', '「別の道を行く」と笑顔で去った。', '縁あって別の一行へ旅立った。'];
+            const msg = quitMessages[Math.floor(Math.random() * quitMessages.length)];
+            events.push({ type: 'bad', text: `[第${state.turn}ターン] 💔 ${t.name}（${mgr.name}一行）が離脱。${msg}` });
+
+            // Cascade morale hit
+            activeTeam.filter(t2 => t2.active && t2.id !== t.id).forEach(t2 => {
+              t2.morale -= rand(4, 10);
+            });
+          }
+        });
+
+        // Replacement hiring cost
+        const newQuit = mgr.team.filter(t => !t.active).length - (mgr._prevQuit || 0);
+        if (newQuit > 0) {
+          const replaceCost = newQuit * 300; // 両/人
+          state.capital -= replaceCost;
+          turnRevenue -= replaceCost;
+          events.push({ type: 'warn', text: `[第${state.turn}ターン] ${mgr.name}一行で${newQuit}名離脱 → 招集費用 -${fmt(replaceCost)}` });
+        }
+        mgr._prevQuit = mgr.team.filter(t => !t.active).length;
+      });
+
+      // Skill growth & prospect detection
+      state.managers.forEach(mgr => {
+        const projSuccess = mgr.assignedProject === null
+          ? null
+          : state.projects.find(p => p.id === mgr.assignedProject && p.status === 'completed');
+
+        mgr.team.filter(t => t.active).forEach(t => {
+          // A配下の在陣ターン数を更新
+          if (mgr.type === 'A') {
+            t.aUnderTurns = (t.aUnderTurns || 0) + 1;
+          } else {
+            t.aUnderTurns = 0;
+          }
+
+          // Base growth: B-type nurtures more
+          let growth = mgr.type === 'B' ? rand(1, 4) : rand(0, 2);
+
+          // 相性（chemistry）によるスキル成長補正（隠しパラメータ）
+          const chem = t.chemistry || 50;
+          if (chem >= 70) growth += 1;
+          else if (chem <= 30) growth = Math.max(0, growth - 1);
+
+          // Morale modifier
+          if (t.morale >= 75) growth += 2;
+          else if (t.morale < 50) growth = Math.max(0, growth - 2);
+
+          // A-type special: 胆力が高いと追い込まれても成長する
+          const res = t.resilience || 50;
+          if (mgr.type === 'A' && t.morale < 30) {
+            if (Math.random() < 0.10 + (res / 1000)) growth += 5;
+          }
+
+          t.skill = Math.min(100, t.skill + growth);
+          t.tenure++;
+
+          // Market value growth
+          let mvGrowth = mgr.type === 'A' ? 2 : 1;
+          t.marketValue = Math.min(100, (t.marketValue || t.skill) + mvGrowth);
+
+          // 相性による士気微補正（隠しパラメータ）
+          if (chem >= 70) t.morale = Math.min(100, t.morale + 1);
+          else if (chem <= 25) t.morale = Math.max(0, t.morale - 1);
+
+          // Prospect emergence
+          if (!t.isProspect && !t.awakened && t.skill >= 75 && t.morale >= 50 && t.tenure >= 3) {
+            const chance = mgr.type === 'B' ? 0.18 : 0.10;
+            if (Math.random() < chance) {
+              t.isProspect = true;
+              state.pendingProspects.push({ memberId: t.id, managerId: mgr.id, name: t.name, skill: t.skill });
+              events.push({ type: 'warn', text: `[第${state.turn}ターン] 🍑 ${t.name}（${mgr.name}一行）の縁起が高まった！新たな隊長を呼び寄せられます` });
+            }
+          }
+
+          // 覚醒（伝説化）判定
+          if (
+            !t.awakened && !t.isProspect &&
+            mgr.type === 'A' &&
+            (t.aUnderTurns || 0) >= 3 &&
+            t.morale <= 30 &&
+            (t.resilience || 0) >= 70 &&
+            t.skill >= 40
+          ) {
+            const awakenChance = 0.05 + ((t.resilience - 70) / 300);
+            if (Math.random() < awakenChance) {
+              t.awakened = true;
+              t.isProspect = true;
+              const skillBoost = rand(20, 35);
+              t.skill = Math.min(100, t.skill + skillBoost);
+              t.marketValue = Math.min(100, (t.marketValue || t.skill) + 20);
+              t.morale = Math.min(100, t.morale + 30);
+              state.pendingProspects.push({
+                memberId: t.id,
+                managerId: mgr.id,
+                name: t.name,
+                skill: t.skill,
+                awakened: true
+              });
+              events.push({ type: 'good', text: `[第${state.turn}ターン] 💥 ${t.name}（${mgr.name}一行）が鬼と渡り合い伝説の隊長として覚醒！スキル+${skillBoost}` });
+              state._awakenEvent = { name: t.name, mgrName: mgr.name, skill: t.skill, skillBoost };
+            }
+          }
+        });
+
+        // エース引き上げ効果：スキル85以上がいると他仲間のスキル成長+1
+        const aces = mgr.team.filter(t => t.active && t.skill >= 85);
+        if (aces.length > 0) {
+          mgr.team.filter(t => t.active && t.skill < 85).forEach(t => {
+            t.skill = Math.min(100, t.skill + 1);
+          });
+        }
+      });
+
+      // Project success skill bonus (applied after project resolution this turn)
+      state.projects.filter(p => p.status === 'completed').forEach(p => {
+        if (p._skillBonusApplied) return;
+        p._skillBonusApplied = true;
+        const mgr = state.managers.find(m => m.successCount > 0 && m.assignedProject === null && state.projects.find(q => q.id === p.id));
+        // Find manager who just completed this project via log cross-reference
+        // Simpler: apply to all active teams proportionally
+        const bonus = p.scale === 'large' ? 5 : p.scale === 'medium' ? 2 : 0;
+        if (bonus > 0) {
+          const mvBonus = p.scale === 'large' ? 15 : p.scale === 'medium' ? 7 : 3;
+          state.managers.forEach(mgr2 => {
+            if (mgr2._lastCompletedProject === p.id) {
+              mgr2.team.filter(t => t.active).forEach(t => {
+                t.skill = Math.min(100, t.skill + bonus);
+                t.marketValue = Math.min(100, (t.marketValue || t.skill) + mvBonus);
+              });
+            }
+          });
+        }
+      });
+
+      // ====== 村の緩みメカニズム ======
+      // ①A型稼働中一行のみ緩みなし（他一行は無関係）
+      // ②B型配下に長くいる仲間は個人レベルで成長が鈍化
+
+      state.managers.forEach(mgr => {
+        const isAActive = mgr.type === 'A' && mgr.assignedProject !== null;
+
+        if (!isAActive && mgr.type !== 'A') {
+          // B型一行：在陣が長い仲間ほど成長が鈍る
+          mgr.team.filter(t => t.active).forEach(t => {
+            const bTenure = t.bUnderTurns || 0;
+            if (bTenure >= 8) {
+              // 8Q以上B配下にいると成長に天井
+              const cap = bTenure >= 16 ? 72 : bTenure >= 12 ? 78 : 83;
+              if (t.skill > cap) {
+                t.skill = Math.max(cap, t.skill - 1);
+              }
+            }
+          });
+        }
+
+        // B配下在陣カウント更新
+        mgr.team.filter(t => t.active).forEach(t => {
+          if (mgr.type === 'B') {
+            t.bUnderTurns = (t.bUnderTurns || 0) + 1;
+          } else {
+            t.bUnderTurns = 0; // A配下に移るとリセット
+          }
+        });
+      });
+
+      // 村全体の緩み状態をstateに記録（警告表示用）
+      const slackingManagers = state.managers.filter(m =>
+        m.type === 'B' && m.team.filter(t => t.active && (t.bUnderTurns || 0) >= 8).length > 0
+      );
+      state._orgSlacking = slackingManagers.length;
+      const newProspects = state.pendingProspects.filter(p => !p.notified);
+      if (newProspects.length > 0) {
+        // 残っている果物（未使用leaderName）があるときだけ通知する
+        const usedNames = state.managers.map(m => m.name);
+        const availableFruits = DONBURAKO_FRUITS.filter(f => !usedNames.includes(f.leaderName));
+        if (availableFruits.length > 0) {
+          newProspects.forEach(p => p.notified = true);
+        } else {
+          // 果物が尽きたのでプロスペクトは静かに解決済みにする
+          newProspects.forEach(p => { p.notified = true; p.resolved = true; });
+        }
+      }
+
+      // コンプリートボーナス判定
+      checkFruitComplete();
+
+      // Unassigned manager cost (idle)
+      state.managers.forEach(mgr => {
+        if (!mgr.assignedProject) {
+          const idleCost = mgr.type === 'A' ? 300 : 200;
+          state.capital -= idleCost;
+          turnRevenue -= idleCost;
+        }
+      });
+
+      // ④ 失敗継続ペナルティ＆A型による立て直し＆4Q強制撤退
+      state.projects.filter(p => p.status === 'failed').forEach(p => {
+        if (p._extinguished) return;
+        p.flamingTurns = (p.flamingTurns || 0) + 1;
+        // 二乗加速ペナルティ
+        const penalty = Math.round(p.baseRevenue * 0.01 * p.flamingTurns * p.flamingTurns);
+        state.capital -= penalty;
+        turnRevenue -= penalty;
+        // 村の名声 -5/ターン
+        state.reputation = Math.max(0, (state.reputation || 80) - 5);
+        events.push({ type: 'bad', text: `[第${state.turn}ターン] 「${p.name}」失敗継続${p.flamingTurns}ターン → -${fmt(penalty)} / 村の名声-5` });
+
+        // 4ターン放置で強制撤退（撤退費用：収益見込みの2倍）
+        if (p.flamingTurns >= 4) {
+          const forcedPenalty = Math.round(p.baseRevenue * 2.0);
+          state.capital -= forcedPenalty;
+          turnRevenue -= forcedPenalty;
+          p._extinguished = true;
+          p.status = 'extinguished';
+          const aFighter = state.managers.find(m => m.assignedProject === p.id);
+          if (aFighter) {
+            aFighter.assignedProject = null;
+            aFighter.team.filter(t => t.active).forEach(t => { t.morale = Math.max(0, t.morale - rand(20, 30)); });
+          }
+          state.reputation = Math.max(0, (state.reputation || 80) - 20);
+          state.managers.forEach(mgr => {
+            mgr.team.filter(t => t.active).forEach(t => { t.morale = Math.max(0, t.morale - rand(5, 15)); });
+          });
+          events.push({ type: 'bad', text: `[第${state.turn}ターン] 「${p.name}」失敗4ターン超過 → 強制撤退 -${fmt(forcedPenalty)} 村の名声-20 全員士気低下` });
+          state.log.unshift({ type: 'bad', text: `[第${state.turn}ターン] 「${p.name}」強制撤退。依頼村との信頼に深刻なダメージ。` });
+          return;
+        }
+
+        // 鬼殺し型の隊長が立て直し担当にアサインされている場合
+        const aFighter = state.managers.find(m => m.type === 'A' && m.assignedProject === p.id);
+        if (aFighter) {
+          const fireScore = calcTeamScore(aFighter);
+          const fireRequired = p.scale === 'large' ? 300 : p.scale === 'medium' ? 150 : 50;
+
+          if (fireScore < fireRequired) {
+            events.push({ type: 'bad', text: `[第${state.turn}ターン] ${aFighter.name}が立て直し試みるも戦力不足(${fireScore}/${fireRequired}) → 失敗` });
+          } else {
+            p._extinguished = true;
+            p.status = 'extinguished';
+            const recovery = Math.round(p.baseRevenue * 0.15);
+            state.capital += recovery;
+            turnRevenue += recovery;
+            aFighter.assignedProject = null;
+            events.push({ type: 'good', text: `[第${state.turn}ターン] ${aFighter.name}が「${p.name}」を立て直し！ +${fmt(recovery)} 回収` });
+            aFighter.team.filter(t => t.active).forEach(t => { t.morale -= rand(5, 12); });
+            if (!aFighter.projectHistory) aFighter.projectHistory = [];
+            aFighter.projectHistory.push({ name: p.name, scale: p.scale, result: 'extinguished', turn: state.turn, rev: recovery });
+          }
+        }
+      });
+
+      // ② 長老評議会圧力：大型討伐の実績が一定期間ない場合、固定費増加
+      const largeDone = state.projects.filter(p => p.scale === 'large' && p.status === 'completed').length;
+      if (state.turn >= 6 && largeDone === 0) {
+        const pressure = Math.floor((state.turn - 5) / 2) * 500; // 2ターンごとに500両増加
+        if (pressure > 0) {
+          state.capital -= pressure;
+          turnRevenue -= pressure;
+          events.push({ type: 'bad', text: `[第${state.turn}ターン] 📯 長老圧力：大型討伐の実績なし → -${fmt(pressure)} (長老からの罰金)` });
+          // ポップアップ用にフラグを立てる
+          state._shareholderPressure = { turn: state.turn, amount: pressure, turnsWithout: state.turn - 5 };
+        }
+      } else if (largeDone > 0) {
+        state._lastLargeCompletedTurn = state.turn;
+        state._shareholderPressure = null;
+      }
+
+      // Overhead
+      const overhead = 500 + state.managers.length * 100;
+      state.capital -= overhead;
+      turnRevenue -= overhead;
+
+      // エース優遇コスト
+      state.managers.forEach(mgr => {
+        mgr.team.filter(t => t.active && t.vip).forEach(t => {
+          state.capital -= 500;
+          turnRevenue -= 500;
+        });
+      });
+
+      state.totalRevenue += turnRevenue;
+
+      // Generate new projects
+      generateProjects(rand(1, 2));
+
+      // Log events
+      if (events.length === 0) events.push({ type: 'info', text: `[第${state.turn}ターン] 特記事項なし` });
+      events.forEach(e => state.log.unshift(e));
+
+      // Banner warnings
+      const orgMorale = getOrgMorale();
+      if (orgMorale < 30) showWarn('⚠ 村士気危機。連鎖離脱リスクが高い状態です。');
+      else if (state.capital < 1000) showWarn('⚠ 財宝が底をつきそうです。討伐任務を慎重に選んでください。');
+      else hideWarn();
+
+      state.turn++;
+
+      if (state.capital <= 0) {
+        endGame(true);
+        return;
+      }
+
+      if (state.turn > state.maxTurns) {
+        endGame(false);
+        return;
+      }
+
+      render();
+      startTurnTimer();
+
+      // 特大討伐ポップアップ
+      if (state._pendingMegaAnnounce) {
+        const mega = state._pendingMegaAnnounce;
+        setTimeout(() => {
+          document.getElementById('megaProjectMessage').textContent = mega.message;
+          document.getElementById('megaProjectDetail').innerHTML =
+            `討伐任務名: <strong>${mega.name}</strong><br>` +
+            `収益見込: <strong style="color:var(--warn)">${fmt(mega.rev)}</strong>（通常大型の約1.5〜2倍）<br>` +
+            `期間: ${mega.duration}ターン ／ 鬼殺し型必須 ／ 戦力1,000〜1,300以上推奨`;
+          document.getElementById('megaProjectModal').classList.add('open');
+          state._pendingMegaAnnounce = null;
+        }, 300);
+        return;
+      }
+
+      // 失敗ポップアップ
+      if (state._flameEvent && state._flameEvent.length > 0) {
+        const fe = state._flameEvent.shift();
+        setTimeout(() => {
+          document.getElementById('flameModalName').textContent = `「${fe.name}」が失敗しました`;
+          document.getElementById('flameModalDetail').textContent =
+            `担当: ${fe.mgrName}　初期ペナルティ: -${fmt(fe.penalty)}\nA型を投入して立て直しするか、放置すると毎ターンペナルティが増加します。`;
+          document.getElementById('flameModal').classList.add('open');
+          // 1秒後に自動で閉じる（OKボタンでも閉じられる）
+          setTimeout(() => {
+            const m = document.getElementById('flameModal');
+            if (m && m.classList.contains('open')) m.classList.remove('open');
+          }, 5000);
+        }, 300);
+        return;
+      }
+
+      // 覚醒（伝説化）ポップアップ
+      if (state._awakenEvent) {
+        const ev = state._awakenEvent;
+        setTimeout(() => {
+          document.getElementById('awakenSubtitle').textContent =
+            `${ev.mgrName}一行の${ev.name}が、極限のプレッシャーの中で覚醒（伝説化）しました。`;
+          document.getElementById('awakenDetail').innerHTML =
+            `スキル <strong style="color:var(--warn)">+${ev.skillBoost}</strong> の急成長。士気・忠誠心も大幅回復。<br>
+        強烈な縁起を放っています。このような仲間は滅多に現れません。<br><br>
+        <span style="color:var(--text2);font-size:11px;">胆力が極めて高く、A型の圧力を燃料に変えた稀有なケースです。</span>`;
+          document.getElementById('awakenModal').classList.add('open');
+          state._awakenEvent = null;
+        }, 400);
+        return;
+      }
+
+      // Shareholder pressure popup
+      if (state._shareholderPressure) {
+        const sp = state._shareholderPressure;
+        setTimeout(() => {
+          document.getElementById('shareholderSubtitle').textContent =
+            `大型討伐の実績が${sp.turnsWithout}ターン続いていません。長老評議会より強い叱責が届いています。`;
+          document.getElementById('shareholderDetail').innerHTML =
+            `今期の罰金: <strong style="color:var(--accent)">${fmt(sp.amount)}</strong><br>` +
+            `このまま大型討伐の実績がなければ、罰金は2ターンごとに <strong>500両ずつ増加</strong> します。<br><br>` +
+            `鬼殺し型の隊長を大型討伐に投入することを検討してください。`;
+          document.getElementById('shareholderModal').classList.add('open');
+          state._shareholderPressure = null;
+        }, 500);
+        return;
+      }
+
+      // New grad recruitment every 4 turns (20Q: Q5,Q9,Q13,Q17 / 40Q: Q5,Q9...Q37)
+      if ((state.turn - 1) % 4 === 0 && state.turn > 1) {
+        setTimeout(() => {
+          openRecruitModal();
+          // After recruit modal, check prospects
+          const pending = state.pendingProspects.filter(p => p.notified && !p.resolved);
+          if (pending.length > 0) setTimeout(openProspectModal, 400);
+        }, 300);
+        return;
+      }
+
+      // Show prospect modal if pending
+      const pending = state.pendingProspects.filter(p => p.notified && !p.resolved);
+      if (pending.length > 0) setTimeout(openProspectModal, 200);
+
+      // ランダム仲間の声（4Qに1回）
+      if (state.turn % 4 === 2) {
+        setTimeout(tryMemberVoice, 600);
+      }
+    }
+
+    // ============================================================
+    // MEMBER VOICE (ランダムポップアップ)
+    // ============================================================
+    function tryMemberVoice() {
+      // 全アクティブ仲間を集める
+      const candidates = [];
+      state.managers.forEach(mgr => {
+        mgr.team.filter(t => t.active).forEach(t => {
+          candidates.push({ t, mgr });
+        });
+      });
+      if (candidates.length === 0) return;
+
+      // 条件ごとにメッセージプール定義
+      const VOICES = [
+        {
+          condition: ({ t, mgr }) => {
+            const recentQuit = (mgr.memberHistory || []).filter(h => h.event === 'quit' && h.turn >= state.turn - 2).length;
+            return recentQuit >= 2;
+          },
+          messages: [
+            '最近、また人が辞めましたよね。正直、不安です。',
+            'なんか、一行が静かになってきた気がします...',
+            '次は自分かなって、少し考えてしまいます。',
+          ]
+        },
+        {
+          condition: ({ t }) => (t.chemistry || 50) >= 70 && t.morale >= 60,
+          messages: [
+            'このリーダーと一緒なら頑張れます。',
+            'なんか、この仕事向いてるかもって思えてきました。',
+            'ここの一行は雰囲気がいいですよね。',
+          ]
+        },
+        {
+          condition: ({ t }) => t.skill >= 80,
+          messages: [
+            'レベルの高い一行で仕事ができて嬉しいです。',
+            'ここにいると自分も伸びてる気がします。',
+            '最近、難しい仕事でも楽しいって思えるようになりました。',
+          ]
+        },
+        {
+          condition: ({ t }) => t.morale <= 30,
+          messages: [
+            '...正直、限界が近いかもしれないです。',
+            '毎朝、鬼退治に出るのが怖いです。',
+            '眠れない夜が増えました。',
+          ]
+        },
+        {
+          condition: ({ t }) => (t.bUnderTurns || 0) >= 12,
+          messages: [
+            '最近、なんか刺激がないんですよね。',
+            'このままでいいのかな、って思うことがあります。',
+            '居心地はいいんですけど、成長してるのかって。',
+          ]
+        },
+        {
+          condition: ({ t, mgr }) => mgr.type === 'A' && (t.aUnderTurns || 0) >= 3 && (t.resilience || 50) >= 70,
+          messages: [
+            'きつい。でも、なんか燃えてきた。',
+            'ここで折れたら終わりだと思って、踏ん張ってます。',
+            '悔しいけど、確実に強くなってる気がします。',
+          ]
+        },
+        {
+          condition: ({ t }) => t.skill >= 85 && !t.vip,
+          messages: [
+            'そろそろ、もっと大きいことやってみたいんですよね。',
+            '正直、他からも声がかかってて...',
+            '別の道を行きたい気持ちが高まっています。',
+          ]
+        },
+        {
+          condition: ({ t }) => t.awakened,
+          messages: [
+            'あの時期があったから、今の自分があると思ってます。',
+            '不思議ですよね。あそこまで追い込まれたのに、今は感謝してます。',
+          ]
+        },
+      ];
+
+      // 該当する条件の仲間を収集
+      const eligible = [];
+      VOICES.forEach((v, vi) => {
+        candidates.forEach(({ t, mgr }) => {
+          if (v.condition({ t, mgr })) {
+            eligible.push({ t, mgr, vi });
+          }
+        });
+      });
+
+      if (eligible.length === 0) return;
+
+      // ランダムに1件選ぶ
+      const picked = choose(eligible);
+      const voice = VOICES[picked.vi];
+      const msg = choose(voice.messages);
+      const face = moraleFace(picked.t.morale);
+
+      document.getElementById('memberVoiceFrom').textContent =
+        `${picked.mgr.name}一行  ${picked.t.name}`;
+      document.getElementById('memberVoiceFace').textContent = face;
+      document.getElementById('memberVoiceText').textContent = `「${msg}」`;
+      document.getElementById('memberVoiceModal').classList.add('open');
+    }
+
+    function showWarn(msg) {
+      const el = document.getElementById('warnBanner');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    function hideWarn() {
+      document.getElementById('warnBanner').classList.remove('show');
+    }
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+    function render() {
+      document.getElementById('turnDisplay').textContent = state.turn;
+      document.getElementById('maxTurnDisplay').textContent = state.maxTurns || 20;
+
+      // KPIs
+      document.getElementById('kpiCapital').textContent = fmt(state.capital);
+      document.getElementById('kpiRevenue').textContent = fmt(state.totalRevenue);
+
+      const totalActive = state.managers.reduce((s, m) => s + m.team.filter(t => t.active).length, 0);
+      document.getElementById('kpiHeadcount').textContent = totalActive + '名';
+
+      const realMorale = getOrgMorale();
+      const reported = getMoraleReport(realMorale);
+      const moraleEl = document.getElementById('kpiMorale');
+      moraleEl.textContent = reported.label;
+      moraleEl.className = 'kpi-value ' + reported.cls;
+
+      // レピュテーション表示
+      const rep = state.reputation || 80;
+      const repEl = document.getElementById('kpiReputation');
+      const repDeltaEl = document.getElementById('kpiReputationDelta');
+      if (repEl) {
+        repEl.textContent = rep;
+        repEl.style.color = rep >= 80 ? 'var(--good)' : rep >= 50 ? 'var(--warn)' : 'var(--accent)';
+      }
+      if (repDeltaEl) {
+        repDeltaEl.textContent = rep >= 80 ? '村の名声良好' : rep >= 50 ? '村の名声低下中' : '⚠ 収益-20%';
+        repDeltaEl.style.color = rep >= 80 ? 'var(--good)' : rep >= 50 ? 'var(--warn)' : 'var(--accent)';
+      }
+
+      // 村の緩み警告
+      const slackingCount = state._orgSlacking || 0;
+      if (slackingCount > 0) {
+        const maxBTenure = Math.max(...state.managers
+          .filter(m => m.type === 'B')
+          .flatMap(m => m.team.filter(t => t.active).map(t => t.bUnderTurns || 0)));
+        if (maxBTenure >= 16) {
+          showWarn(`😴 ぬるま湯化が深刻です（最長B配下${maxBTenure}ターン）→ スキル天井72。A型一行への移動または刺激が必要。`);
+        } else if (maxBTenure >= 12) {
+          showWarn(`😌 一部仲間が緩んでいます（最長B配下${maxBTenure}Q）→ スキル天井78。`);
+        } else if (maxBTenure >= 8) {
+          showWarn(`😌 B配下${maxBTenure}Q継続の仲間にスキル天井83が発生し始めています。`);
+        }
+      } else {
+        // 士気危機や財宝危機の警告はここで上書きしない
+      }
+
+      // Projects
+      const pl = document.getElementById('projectList');
+      pl.innerHTML = '';
+      const activeProjects = state.projects.filter(p => ['available', 'active', 'failed'].includes(p.status));
+      const recentDone = state.projects.filter(p => p.status === 'completed' || p.status === 'extinguished').slice(-3);
+      [...activeProjects, ...recentDone].forEach(p => {
+        const card = document.createElement('div');
+        card.className = `project-card ${p.status}`;
+        card.id = `proj-${p.id}`;
+
+        const scaleLabel = p.scale === 'mega' ? '✨特大' : p.scale === 'large' ? '大型' : p.scale === 'medium' ? '中型' : '小型';
+        const scaleCls = p.scale === 'mega' ? 'scale-large' : p.scale === 'large' ? 'scale-large' : p.scale === 'medium' ? 'scale-medium' : 'scale-small';
+        const assignedMgr = p.assignedManager ? state.managers.find(m => m.id === p.assignedManager) : null;
+        const currentScore = assignedMgr ? calcTeamScore(assignedMgr) : null;
+        const required = p.requiredScore || 0;
+        const scoreColor = currentScore === null ? 'var(--text2)'
+          : currentScore >= required ? 'var(--good)'
+            : currentScore >= required * 0.9 ? 'var(--warn)'
+              : 'var(--accent)';
+        const scoreText = currentScore !== null
+          ? `<span style="color:${scoreColor}">${currentScore}</span>/<span>${required}</span>`
+          : `—/${required}`;
+
+        let statusText = '未アサイン';
+        if (p.status === 'active') statusText = `進行中 残${p.turnsLeft}ターン`;
+        if (p.status === 'completed') statusText = '✓ 完了';
+        if (p.status === 'failed') statusText = `<span style="color:var(--accent);font-weight:700;animation:flamePulse 1.5s infinite;">🔥 失敗中 ${p.flamingTurns || 0}Q経過</span>`;
+        if (p.status === 'extinguished') statusText = '🧯 立て直し済';
+
+        const requiresABadge = (p.requiresA || p.scale === 'mega')
+          ? `<span style="font-family:var(--mono);font-size:9px;padding:1px 6px;background:rgba(224,96,128,0.2);border:1px solid var(--accent);color:var(--accent);margin-left:6px;">${p.scale === 'mega' ? '✨特大・A型必須' : 'A型指名'}</span>`
+          : '';
+
+        const projectNameStyle = p.status === 'failed' ? 'color:var(--accent);font-weight:800;' : '';
+
+        card.innerHTML = `
+      <div class="project-header">
+        <div class="project-name" style="${projectNameStyle}">${p.status === 'failed' ? '🔥 ' : ''}${p.name}${requiresABadge}</div>
+        <div class="project-scale ${scaleCls}">${scaleLabel}</div>
+      </div>
+      <div class="project-meta">
+        収益見込: <span>${fmt(p.baseRevenue)}</span>&nbsp;&nbsp;
+        期間: <span>${p.duration}ターン</span>&nbsp;&nbsp;
+        失敗リスク: <span>${Math.round(p.flameRisk * 100)}%</span>&nbsp;&nbsp;
+        戦力: ${scoreText}&nbsp;&nbsp;
+        担当: <span>${assignedMgr ? assignedMgr.name : '—'}</span>&nbsp;&nbsp;
+        状態: <span>${statusText}</span>
+        ${p.status === 'active' ? `<button class="swap-btn" onclick="toggleSwapPanel(${p.id})">⇄ 交代</button>` : ''}
+      </div>
+      ${p.status === 'active' ? `
+        <div class="project-status-bar">
+          <div class="project-status-fill" style="width:${p.progress}%; background: var(--accent2);"></div>
+        </div>
+        <div class="swap-panel" id="swap-panel-${p.id}">
+          <div class="assign-label">隊長を交代 (交代コスト150両・失敗リスク↑)</div>
+          <div id="swap-select-${p.id}" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>` : ''}
+      ${p.status === 'available' ? `
+        <div class="assign-area open">
+          <div class="assign-label">ASSIGN LEADER</div>
+          <div class="manager-select" id="mgr-select-${p.id}"></div>
+        </div>` : ''}
+      ${p.status === 'failed' ? `
+        <div class="assign-area open" style="border-top-color:var(--accent);">
+          <div class="assign-label" style="color:var(--accent);">🔥 立て直し担当 — A型のみ投入可能（必要戦力: ${p.scale === 'large' ? 300 : p.scale === 'medium' ? 150 : 50}以上）
+            <button class="btn-secondary" style="font-size:9px;padding:2px 8px;margin-left:8px;color:var(--accent);border-color:var(--accent);" onclick="withdrawProject(${p.id})">🚪 撤退（費用×2）</button>
+            <span style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-left:4px;">4Q超過で強制撤退</span>
+          </div>
+          <div class="manager-select" id="fire-select-${p.id}"></div>
+        </div>` : ''}
+    `;
+
+        pl.appendChild(card);
+
+        if (p.status === 'available') {
+          const sel = document.getElementById(`mgr-select-${p.id}`);
+          state.managers.forEach(m => {
+            const btn = document.createElement('button');
+            const isAssigned = m.assignedProject !== null;
+            const isThisProject = m.assignedProject === p.id;
+            btn.className = `mgr-btn type-${m.type.toLowerCase()} ${isThisProject ? 'assigned-' + m.type.toLowerCase() : ''}`;
+            btn.textContent = `${m.name} [${m.type}]`;
+            if (isAssigned && !isThisProject) {
+              btn.disabled = true;
+              btn.style.opacity = '0.4';
+            }
+            btn.onclick = () => assignManager(m.id, p.id);
+            sel.appendChild(btn);
+          });
+        }
+
+        // Firefighting assign for failed projects
+        if (p.status === 'failed') {
+          const fireSel = document.getElementById(`fire-select-${p.id}`);
+          if (fireSel) {
+            const aManagers = state.managers.filter(m => m.type === 'A');
+            if (aManagers.length === 0) {
+              fireSel.innerHTML = '<span style="font-family:var(--mono);font-size:11px;color:var(--text2);">鬼殺し型の隊長がいません</span>';
+            } else {
+              aManagers.forEach(m => {
+                const btn = document.createElement('button');
+                const isBusy = m.assignedProject !== null;
+                const fireScore = calcTeamScore(m);
+                const fireRequired = p.scale === 'large' ? 300 : p.scale === 'medium' ? 150 : 50;
+                const canFight = fireScore >= fireRequired;
+                btn.className = `mgr-btn assigned-a`;
+                btn.style.opacity = canFight ? '1' : '0.5';
+                btn.textContent = `${m.name}${isBusy ? ' (他討伐中)' : ''} [戦力${fireScore}/${fireRequired}]`;
+                btn.onclick = () => {
+                  // すでにこの失敗プロジェクトにアサイン済みなら何もしない
+                  if (m.assignedProject === p.id) {
+                    state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${m.name}はすでに「${p.name}」立て直し中です` });
+                    render();
+                    return;
+                  }
+                  if (isBusy) {
+                    const prevProj = state.projects.find(q => q.id === m.assignedProject);
+                    // 失敗中の別プロジェクトから引き抜く場合は撤退費用
+                    if (prevProj && prevProj.status === 'failed') {
+                      const penalty = Math.round(prevProj.baseRevenue * 0.20);
+                      if (!confirm(`${m.name}は「${prevProj.name}」立て直し中です。\n撤退費用 ${fmt(penalty)} を払って移動しますか？`)) return;
+                      state.capital -= penalty;
+                      state.log.unshift({ type: 'bad', text: `[第${state.turn}ターン] 「${prevProj.name}」立て直し離脱 → 撤退費用 -${fmt(penalty)}` });
+                      prevProj.assignedManager = null;
+                    } else {
+                      if (!confirm(`${m.name}は現在別討伐担当中です。立て直しに回しますか？`)) return;
+                      if (prevProj) { prevProj.assignedManager = null; prevProj.status = 'available'; }
+                    }
+                  }
+                  m.assignedProject = p.id;
+                  p.assignedManager = m.id;
+                  state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${m.name}を「${p.name}」立て直しに投入` });
+                  render();
+                };
+                fireSel.appendChild(btn);
+              });
+            }
+          }
+        }
+        if (p.status === 'active') {
+          const swapSel = document.getElementById(`swap-select-${p.id}`);
+          if (swapSel) {
+            state.managers.forEach(m => {
+              if (m.id === p.assignedManager) return; // skip current
+              const btn = document.createElement('button');
+              const isBusy = m.assignedProject !== null;
+              btn.className = `mgr-btn type-${m.type.toLowerCase()}`;
+              btn.textContent = `${m.name} [${m.type}]${isBusy ? ' (他討伐中)' : ''}`;
+              if (isBusy) { btn.style.opacity = '0.5'; }
+              btn.onclick = () => {
+                if (isBusy && !confirm(`${m.name}は現在別討伐担当中です。強制交代しますか？`)) return;
+                swapLeader(m.id, p.id);
+              };
+              swapSel.appendChild(btn);
+            });
+          }
+        }
+      });
+
+      // Managers
+      const ml = document.getElementById('managerList');
+      ml.innerHTML = '';
+      state.managers.forEach(m => {
+        const activeTeam = m.team.filter(t => t.active);
+        const T = m.team.filter(t => !t.promotedAt && !t.transferredAt).length; // 召喚・一行替えは分母から除外
+        const quitCount = m.team.filter(t => !t.active && !t.promotedAt && !t.transferredAt).length;
+        const avgMorale = activeTeam.length ? activeTeam.reduce((s, t) => s + t.morale, 0) / activeTeam.length : 0;
+        const reported = getMoraleReport(avgMorale);
+
+        const prospects = activeTeam.filter(t => t.isProspect);
+        const FACE_LIMIT = 6; // show faces up to this count, then show "X名" button
+
+        // Build face/count display
+        let teamDisplay = '';
+        if (activeTeam.length <= FACE_LIMIT) {
+          teamDisplay = `<div class="member-faces">` +
+            activeTeam.map(t => {
+              const rep = Math.max(0, Math.min(100, t.morale + Math.floor(Math.random() * 11) - 5));
+              const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c' };
+              const dot = t.label ? `<span style="width:6px;height:6px;border-radius:50%;background:${lblColors[t.label]};display:inline-block;vertical-align:top;margin-left:1px;"></span>` : '';
+              return `<span class="member-face${t.isProspect ? ' is-prospect' : ''}" title="${t.name}">${moraleFace(rep)}${dot}</span>`;
+            }).join('') +
+            `</div>`;
+        } else {
+          const shown = activeTeam.slice(0, 4);
+          teamDisplay = `<div class="member-faces" style="align-items:center;">` +
+            shown.map(t => {
+              const rep = Math.max(0, Math.min(100, t.morale + Math.floor(Math.random() * 11) - 5));
+              const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c' };
+              const dot = t.label ? `<span style="width:6px;height:6px;border-radius:50%;background:${lblColors[t.label]};display:inline-block;vertical-align:top;margin-left:1px;"></span>` : '';
+              return `<span class="member-face${t.isProspect ? ' is-prospect' : ''}" title="${t.name}">${moraleFace(rep)}${dot}</span>`;
+            }).join('') +
+            `<button class="team-count-btn" onclick="tutOpenMemberModal(${m.id})">+${activeTeam.length - 4}名 →</button>` +
+            `</div>`;
+        }
+
+        // Avg skill bar + 戦力スコア
+        const avgSkill = activeTeam.length ? Math.round(activeTeam.reduce((s, t) => s + t.skill, 0) / activeTeam.length) : 0;
+        const teamScore = calcTeamScore(m);
+        const assignedProj = m.assignedProject ? state.projects.find(p => p.id === m.assignedProject) : null;
+        const requiredScore = assignedProj ? (assignedProj.requiredScore || 0) : 0;
+        const scoreColor = !assignedProj ? 'var(--text2)'
+          : teamScore >= requiredScore ? 'var(--good)'
+            : teamScore >= requiredScore * 0.9 ? 'var(--warn)'
+              : 'var(--accent)';
+
+        const card = document.createElement('div');
+        card.className = `manager-card type-${m.type.toLowerCase()} leader-comment-wrap`;
+        card.innerHTML = `
+      <div class="mgr-name-row">
+        <div class="mgr-name" style="cursor:pointer;text-decoration:underline dotted;" onclick="openMgrProfileModal(${m.id})">
+          <span style="font-size:18px;margin-right:6px;vertical-align:middle;">${mgrFace(m)}</span>${m.name}
+        </div>
+        <div class="mgr-type">TYPE-${m.type}</div>
+      </div>
+      <div class="mgr-stats">
+        担当: <span>${m.assignedProject ? state.projects.find(p => p.id === m.assignedProject)?.name.slice(0, 8) + '…' : '任務なし'}</span>
+        討伐: <span>${m.successCount}件</span>
+        離脱: <span>${quitCount}名</span>
+        人数: <button class="team-count-btn" onclick="openMemberModal(${m.id})">${activeTeam.length}/${T}名</button>
+        <button class="swap-btn" style="margin-left:4px;" onclick="openTransferModal(${m.id})">👥 一行替え</button>
+      </div>
+      <div class="skill-bar-wrap" style="margin-top:6px;">
+        <div class="skill-bar-label"><span>平均スキル</span><span>${avgSkill}</span></div>
+        <div class="skill-bar"><div class="skill-bar-fill" style="width:${avgSkill}%"></div></div>
+      </div>
+      <div style="margin-top:4px;font-family:var(--mono);font-size:10px;">
+        戦力: <span style="color:${scoreColor};font-weight:700;">${teamScore}</span>${assignedProj ? `<span style="color:var(--text2);"> / ${requiredScore}</span>` : ''}
+      </div>
+      ${teamDisplay}
+      <div class="mgr-team morale-display" style="margin-top:4px;">
+        一行士気(報告値): <span class="${reported.cls}">${reported.label}</span>
+        <span style="color:var(--text2); font-size:9px;"> ※誤差あり</span>
+      </div>
+      ${prospects.length > 0 ? `<div style="margin-top:4px; font-family:var(--mono); font-size:10px;">
+        ⭐ 昇格候補: ${prospects.map(t => `<span style="color:var(--warn)">${t.name}</span>`).join('、')}
+      </div>` : ''}
+      ${activeTeam.filter(t => t.skill >= 85).length > 0 ? `<div style="margin-top:4px; font-family:var(--mono); font-size:10px; color:var(--warn);">
+        ⚡ エース: ${activeTeam.filter(t => t.skill >= 85).map(t => `${t.name}${t.vip ? '👑' : ''}`).join('、')}
+      </div>` : ''}
+    `;
+        ml.appendChild(card);
+
+        // ゲーム中ホバーコメント（現在の状況に応じた一言）
+        const activeTeamNow = m.team.filter(t => t.active);
+        const avgMoraleNow = activeTeamNow.length
+          ? activeTeamNow.reduce((s, t) => s + t.morale, 0) / activeTeamNow.length : 50;
+        let inGameComment = '';
+        if (m.type === 'A') {
+          if (avgMoraleNow < 30) inGameComment = '「もっと根性出せ。辞めたいなら辞めろ。」';
+          else if (avgMoraleNow < 55) inGameComment = '「結果が全てだ。余計なことを考えるな。」';
+          else inGameComment = '「まあまあだ。もっとやれるはずだが。」';
+        } else {
+          if (avgMoraleNow < 30) inGameComment = '「申し訳ない…もっと守れたはずなのに。」';
+          else if (avgMoraleNow < 55) inGameComment = '「みんな頑張ってくれています。もう少しです。」';
+          else inGameComment = '「いい一行です。このまま行きましょう。」';
+        }
+        const bubble = document.createElement('div');
+        bubble.className = 'leader-comment-bubble';
+        bubble.textContent = inGameComment;
+        card.appendChild(bubble);
+      });
+
+      // Event log
+      const el = document.getElementById('eventLog');
+      el.innerHTML = '';
+      state.log.forEach(e => {
+        const div = document.createElement('div');
+        div.className = `log-entry ${e.type}`;
+        div.textContent = e.text;
+        el.appendChild(div);
+      });
+    }
+
+    function openMgrProfileModal(managerId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      if (!mgr) return;
+
+      const activeTeam = mgr.team.filter(t => t.active);
+      const quitCount = mgr.team.filter(t => !t.active && !t.promotedAt && !t.transferredAt).length;
+      const promotedCount = mgr.team.filter(t => t.promotedAt).length;
+      const transferredCount = mgr.team.filter(t => t.transferredAt).length;
+
+      document.getElementById('mgrProfileTitle').textContent = mgr.name;
+      document.getElementById('mgrProfileSubtitle').textContent =
+        `TYPE-${mgr.type} ／ 現一行${activeTeam.length}名 ／ 成功${mgr.successCount}件 ／ 離脱${quitCount}名 ／ 召喚貢献${promotedCount}名`;
+
+      // Project history
+      const ph = document.getElementById('mgrProjectHistory');
+      ph.innerHTML = '';
+      const history = mgr.projectHistory || [];
+      if (history.length === 0) {
+        ph.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">実績なし</div>';
+      } else {
+        [...history].reverse().forEach(h => {
+          const div = document.createElement('div');
+          div.style.cssText = `font-family:var(--mono);font-size:10px;padding:4px 8px;background:var(--surface2);border-left:2px solid ${h.result === 'success' ? 'var(--good)' : h.result === 'extinguished' ? 'var(--warn)' : 'var(--accent)'};`;
+          const scaleLabel = h.scale === 'large' ? '大型' : h.scale === 'medium' ? '中型' : '小型';
+          const revText = h.rev ? ` +${fmt(h.rev)}` : '';
+          const resultIcon = h.result === 'success' ? '✓' : h.result === 'extinguished' ? '🧯立て直し' : '✗';
+          div.textContent = `Q${h.turn} [${scaleLabel}] ${h.name} ${resultIcon}${revText}`;
+          ph.appendChild(div);
+        });
+      }
+
+      // Member history
+      const mh = document.getElementById('mgrMemberHistory');
+      mh.innerHTML = '';
+      const mHistory = mgr.memberHistory || [];
+      if (mHistory.length === 0) {
+        mh.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">変動なし</div>';
+      } else {
+        [...mHistory].reverse().forEach(h => {
+          const div = document.createElement('div');
+          const colorMap = {
+            quit: 'var(--accent)',
+            promoted: 'var(--warn)',
+            transferred: 'var(--text2)',
+            transferred_in: 'var(--accent2)',
+            hired: 'var(--good)'
+          };
+          const labelMap = {
+            quit: '離脱',
+            promoted: '🍑召喚貢献',
+            transferred: '→転出',
+            transferred_in: '←転入',
+            hired: '🎓加勢'
+          };
+          const color = colorMap[h.event] || 'var(--text2)';
+          const label = labelMap[h.event] || h.event;
+          div.style.cssText = `font-family:var(--mono);font-size:10px;padding:4px 8px;background:var(--surface2);border-left:2px solid ${color};color:${color};`;
+          div.textContent = `Q${h.turn} ${h.name} ${label}`;
+          mh.appendChild(div);
+        });
+      }
+
+      document.getElementById('mgrProfileModal').classList.add('open');
+    }
+
+    // ============================================================
+    // MEMBER TRANSFER
+    // ============================================================
+    let _transferState = { memberId: null, fromManagerId: null };
+
+    function openTransferModal(managerId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      if (!mgr) return;
+      _transferState = { memberId: null, fromManagerId: managerId };
+
+      document.getElementById('transferSubtitle').textContent =
+        `${mgr.name}一行から移す仲間を選んでください。（士気-5）`;
+
+      const list = document.getElementById('transferMemberList');
+      list.innerHTML = '';
+      mgr.team.filter(t => t.active).forEach(t => {
+        const mv = t.marketValue || t.skill;
+        const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c' };
+        const labelDot = t.label
+          ? `<span style="width:9px;height:9px;border-radius:50%;background:${lblColors[t.label]};display:inline-block;margin-right:5px;vertical-align:middle;flex-shrink:0;"></span>`
+          : '';
+        const row = document.createElement('div');
+        row.style.cssText = `background:var(--surface2);border:1px solid var(--border);${t.label ? `border-left:3px solid ${lblColors[t.label]};` : ''}padding:10px 12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:border-color 0.15s;`;
+        row.id = `transfer-row-${t.id}`;
+        row.innerHTML = `
+      <div>
+        <strong style="font-size:13px;">${labelDot}${moraleFace(t.morale)} ${t.name}</strong>
+        ${t.isProspect ? '<span style="color:var(--warn);font-size:10px;margin-left:6px;">⭐候補</span>' : ''}
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:2px;">スキル(観測):${observedSkill(t, mgr)} 忠誠心:${100 - observedMarketValue(t)} 士気:${Math.max(0, Math.min(100, t.morale + Math.floor(Math.random() * 21) - 10))}</div>
+      </div>
+      <button class="mgr-btn" onclick="selectTransferMember(${t.id}, ${managerId})">選択</button>
+    `;
+        list.appendChild(row);
+      });
+
+      document.getElementById('transferDestArea').style.display = 'none';
+      document.getElementById('transferModal').classList.add('open');
+    }
+
+    function selectTransferMember(memberId, fromManagerId) {
+      _transferState.memberId = memberId;
+      _transferState.fromManagerId = fromManagerId;
+
+      // Highlight selected
+      document.querySelectorAll('[id^="transfer-row-"]').forEach(el => {
+        el.style.borderColor = 'var(--border)';
+      });
+      const row = document.getElementById(`transfer-row-${memberId}`);
+      if (row) row.style.borderColor = 'var(--accent2)';
+
+      // Show destination
+      const destArea = document.getElementById('transferDestArea');
+      destArea.style.display = 'block';
+      const btns = document.getElementById('transferDestBtns');
+      btns.innerHTML = '';
+      state.managers.filter(m => m.id !== fromManagerId).forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = `mgr-btn type-${m.type.toLowerCase()}`;
+        btn.textContent = `${m.name} [${m.type}型] (${m.team.filter(t => t.active).length}名)`;
+        btn.onclick = () => executeTransfer(m.id);
+        btns.appendChild(btn);
+      });
+    }
+
+    function executeTransfer(toManagerId) {
+      const { memberId, fromManagerId } = _transferState;
+      if (!memberId || !fromManagerId) return;
+
+      const fromMgr = state.managers.find(m => m.id === fromManagerId);
+      const toMgr = state.managers.find(m => m.id === toManagerId);
+      if (!fromMgr || !toMgr) return;
+
+      const member = fromMgr.team.find(t => t.id === memberId);
+      if (!member) return;
+
+      // 一行替えフラグをつけて元一行の分母から除外（離脱扱いにしない）
+      member.active = false;
+      member.transferredAt = state.turn;
+      member.isProspect = false;
+
+      // 移動先一行に新エントリとして追加（active=true、フラグなし）
+      const newEntry = {
+        id: state.nextMemberId++,
+        name: member.name,
+        morale: Math.max(0, member.morale - 5),
+        active: true,
+        tenure: member.tenure,
+        skill: member.skill,
+        marketValue: member.marketValue || member.skill,
+        resilience: member.resilience || 50,
+        chemistry: rand(20, 80),
+        aUnderTurns: 0,
+        bUnderTurns: 0,
+        awakened: member.awakened || false,
+        isProspect: false,
+        vip: false // 一行替えでVIPもリセット
+      };
+      toMgr.team.push(newEntry);
+
+      if (!fromMgr.memberHistory) fromMgr.memberHistory = [];
+      fromMgr.memberHistory.push({ name: member.name, event: 'transferred', turn: state.turn });
+      if (!toMgr.memberHistory) toMgr.memberHistory = [];
+      toMgr.memberHistory.push({ name: member.name, event: 'transferred_in', turn: state.turn });
+
+      // Also remove from pendingProspects if applicable
+      state.pendingProspects.forEach(p => {
+        if (p.memberId === memberId) p.resolved = true;
+      });
+
+      state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${member.name} を${fromMgr.name}→${toMgr.name}に一行替え (士気-5)` });
+
+      closeModal('transferModal');
+      render();
+    }
+
+    function setMemberLabel(managerId, memberId, color) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      if (!mgr) return;
+      const member = mgr.team.find(t => t.id === memberId);
+      if (!member) return;
+      member.label = color === 'none' ? null : color;
+      openMemberModal(managerId);
+    }
+
+    function toggleVip(managerId, memberId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      if (!mgr) return;
+      const member = mgr.team.find(t => t.id === memberId);
+      if (!member) return;
+      member.vip = !member.vip;
+      const action = member.vip ? '優遇開始' : '優遇解除';
+      state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${member.name} エース${action}` });
+      openMemberModal(managerId); // モーダル更新
+    }
+
+    // ============================================================
+    // MEMBER HELPERS
+    // ============================================================
+    function moraleFace(morale) {
+      if (morale >= 80) return '😄';
+      if (morale >= 65) return '🙂';
+      if (morale >= 50) return '😐';
+      if (morale >= 35) return '😟';
+      if (morale >= 20) return '😩';
+      return '💀';
+    }
+
+    // 識別力による観測誤差（スキル・胆力）
+    function discernmentNoise(discernment) {
+      const range = discernment >= 90 ? 3
+        : discernment >= 70 ? 8
+          : discernment >= 50 ? 15
+            : discernment >= 30 ? 25
+              : 40;
+      return Math.floor(Math.random() * (range * 2 + 1)) - range;
+    }
+
+    // 忠誠心の誤差（識別力とは独立）
+    function marketValueNoise() {
+      return Math.floor(Math.random() * 41) - 20; // ±20
+    }
+
+    // 観測値を計算（表示用）
+    function observedSkill(t, mgr) {
+      const d = mgr ? (mgr.discernment || 50) : 50;
+      return Math.max(0, Math.min(100, t.skill + discernmentNoise(d)));
+    }
+    function observedResilience(t, mgr) {
+      const d = mgr ? (mgr.discernment || 50) : 50;
+      return Math.max(0, Math.min(100, (t.resilience || 50) + discernmentNoise(d)));
+    }
+    function observedMarketValue(t) {
+      return Math.max(0, Math.min(100, (t.marketValue || t.skill) + marketValueNoise()));
+    }
+
+    const MGR_FACES_A = ['💪', '😤', '🧑‍🦯', '🫡', '😠', '💪', '🫠', '😤'];
+    const MGR_FACES_B = ['😊', '🙂', '😌', '🤗', '😄', '😊', '🙂', '😌'];
+
+    function mgrFace(mgr) {
+      // 隊長ごとに固定の顔文字（idでシード）
+      const pool = mgr.type === 'A' ? MGR_FACES_A : MGR_FACES_B;
+      return pool[mgr.id % pool.length];
+    }
+
+    function openMemberModal(managerId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      if (!mgr) return;
+
+      const activeTeam = mgr.team.filter(t => t.active);
+      const quitCount = mgr.team.filter(t => !t.active && !t.promotedAt && !t.transferredAt).length;
+      document.getElementById('memberModalTitle').textContent = mgr.name + ' — 一行仲間';
+      document.getElementById('memberModalSubtitle').textContent =
+        `${activeTeam.length}名在陣 ／ 離脱者${quitCount}名 ／ 識別力${mgr.discernment}（スキル・胆力の観測誤差に影響）`;
+
+      const grid = document.getElementById('memberListGrid');
+      grid.innerHTML = '';
+
+      activeTeam.forEach(t => {
+        const reportedMorale = Math.max(0, Math.min(100, t.morale + Math.floor(Math.random() * 21) - 10));
+        const obsSkill = observedSkill(t, mgr);
+        const obsRes = observedResilience(t, mgr);
+        const obsMv = observedMarketValue(t);
+        const isAce = t.skill >= 85;
+        const lbl = t.label || 'none';
+        const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c', none: 'var(--border)' };
+        const row = document.createElement('div');
+        row.className = `member-row${t.isProspect ? ' is-prospect' : ''}`;
+        row.style.gridTemplateColumns = '24px 1fr 1fr 80px';
+        if (isAce) row.style.borderColor = 'var(--warn)';
+        if (lbl !== 'none') row.style.borderLeftColor = lblColors[lbl];
+        row.innerHTML = `
+      <div class="member-row-face">${moraleFace(reportedMorale)}</div>
+      <div class="member-row-name">
+        ${isAce ? '<span style="font-size:14px;">⚡</span> ' : ''}${t.name}
+        ${t.awakened ? ' <span style="color:var(--warn);font-size:10px;">💥覚醒（伝説化）</span>' : t.isProspect ? ' <span style="color:var(--warn);font-size:10px;">⭐</span>' : ''}
+        ${t.vip ? ' <span style="color:var(--good);font-size:10px;">👑VIP</span>' : ''}
+        <small>勤続${t.tenure}Q ${t.aUnderTurns > 0 ? `/ A配下${t.aUnderTurns}Q` : ''}</small>
+        <div class="member-label-picker">
+          <span style="font-family:var(--mono);font-size:8px;color:var(--text2);">ラベル:</span>
+          ${['red', 'yellow', 'green', 'blue', 'none'].map(c =>
+          `<span class="member-label-dot label-${c}" title="${c}" style="${lbl === c ? 'transform:scale(1.4);box-shadow:0 0 0 2px var(--accent2);' : ''}" onclick="setMemberLabel(${managerId},${t.id},'${c}')"></span>`
+        ).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-label">
+            <span${isAce ? ' style="color:var(--warn);font-weight:700;"' : ''}>スキル(観測)</span>
+            <span${isAce ? ' style="color:var(--warn);"' : ''}>${obsSkill}${isAce ? ' ⚡' : ''}</span>
+          </div>
+          <div class="skill-bar"><div class="skill-bar-fill" style="width:${obsSkill}%;background:${isAce ? 'var(--warn)' : 'var(--accent2)'};"></div></div>
+        </div>
+        <div class="skill-bar-wrap" style="margin-top:3px;">
+          <div class="skill-bar-label"><span style="color:var(--text2);">忠誠心</span><span style="color:var(--text2);">${100 - obsMv}</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" style="width:${100 - obsMv}%;background:var(--text2);"></div></div>
+        </div>
+        <div class="skill-bar-wrap" style="margin-top:3px;">
+          <div class="skill-bar-label"><span style="color:var(--text2);">胆力(観測)</span><span style="color:var(--text2);">${obsRes}</span></div>
+          <div class="skill-bar"><div class="skill-bar-fill" style="width:${obsRes}%;background:${obsRes >= 70 ? 'var(--good)' : obsRes >= 40 ? 'var(--text2)' : 'var(--border)'};"></div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="member-row-morale">${moraleFace(reportedMorale)}<span style="font-family:var(--mono);font-size:9px;color:var(--text2);display:block;text-align:center;">${reportedMorale}</span></div>
+        ${isAce ? `<button class="promote-btn" style="font-size:9px;padding:2px 6px;${t.vip ? 'border-color:var(--good);color:var(--good);' : ''}" onclick="toggleVip(${managerId}, ${t.id})">${t.vip ? '👑 優遇中' : '優遇する'}</button><span style="font-family:var(--mono);font-size:8px;color:var(--text2);">500両/ターン</span>` : ''}
+      </div>
+    `;
+        grid.appendChild(row);
+      });
+
+      document.getElementById('memberModal').classList.add('open');
+    }
+
+    // ============================================================
+    // どんぶらこ（隊長召喚イベント）
+    // ============================================================
+
+    // 果物リスト：絵文字・名前・A/B傾向・対応する隊長名
+    const DONBURAKO_FRUITS = [
+      { emoji: '🍑', name: '桃', bias: 'any', leaderName: '桃次郎' },
+      { emoji: '🍊', name: '柿', bias: 'A', leaderName: '柿太郎' },
+      { emoji: '🍓', name: '苺', bias: 'B', leaderName: '苺太郎' },
+      { emoji: '🍇', name: '葡萄', bias: 'B', leaderName: '葡萄太郎' },
+      { emoji: '🍎', name: '林檎', bias: 'A', leaderName: '林檎太郎' },
+      { emoji: '🍉', name: '西瓜', bias: 'any', leaderName: '西瓜太郎' },
+      { emoji: '🍈', name: '蜜柑', bias: 'B', leaderName: '蜜柑太郎' },
+      { emoji: '🍐', name: '梨', bias: 'any', leaderName: '梨太郎' },
+      { emoji: '🍋', name: '檸檬', bias: 'A', leaderName: '檸檬太郎' },
+      { emoji: '🍑', name: '杏', bias: 'B', leaderName: '杏太郎' },
+    ];
+
+    // 現在表示中のどんぶらこデータ
+    let _donburakoState = null;
+
+    function openProspectModal() {
+      const pending = state.pendingProspects.filter(p => p.notified && !p.resolved);
+      if (pending.length === 0) return;
+
+      const p = pending[0]; // 1件ずつ処理
+      const mgr = state.managers.find(m => m.id === p.managerId);
+      const member = mgr ? mgr.team.find(t => t.id === p.memberId) : null;
+      if (!member || !member.active) { p.resolved = true; return; }
+
+      // A/B型の決定：直近の討伐成功数の比率で重み付け
+      const recentA = state.managers.filter(m => m.type === 'A').reduce((s, m) => s + (m.successCount || 0), 0);
+      const recentB = state.managers.filter(m => m.type === 'B').reduce((s, m) => s + (m.successCount || 0), 0);
+      const total = recentA + recentB;
+      const probA = total > 0 ? recentA / total : 0.5;
+      const newType = Math.random() < probA ? 'A' : 'B';
+
+      // 果物の選択：typeの傾向に合うものを優先、かつ未使用の名前のもの
+      const usedNames = state.managers.map(m => m.name);
+      const suited = DONBURAKO_FRUITS.filter(f =>
+        (f.bias === newType || f.bias === 'any') && !usedNames.includes(f.leaderName)
+      );
+      // 全て使用済みなら傾向だけで選ぶ
+      const pool = suited.length > 0
+        ? suited
+        : DONBURAKO_FRUITS.filter(f => f.bias === newType || f.bias === 'any');
+      const fruit = pool[Math.floor(Math.random() * pool.length)];
+
+      // 隊長名は果物に紐付け
+      const newFruitName = fruit.leaderName;
+
+      const transferable = mgr.team.filter(t => t.active && t.id !== p.memberId);
+      const canPromote = transferable.length >= 2;
+
+      // どんぶらこの状態を保存
+      _donburakoState = {
+        prospect: p,
+        mgr,
+        member,
+        newType,
+        newFruitName,
+        fruit,
+        transferable,
+        canPromote,
+      };
+
+      // モーダルのDOM更新
+      const fruitEl = document.getElementById('donburakoFruit');
+      if (fruitEl) {
+        fruitEl.textContent = fruit.emoji;
+        // アニメーション再生のためにリセット
+        fruitEl.style.animation = 'none';
+        fruitEl.offsetHeight; // reflow
+        fruitEl.style.animation = 'donburakoFloat 3s ease-in-out infinite, donburakoSlide 2.4s ease-out forwards';
+      }
+
+      const typeLabel = newType === 'A' ? '鬼殺し型（TYPE-A）💪' : '仲間思い型（TYPE-B）😊';
+      const aWins = recentA, bWins = recentB;
+
+      document.getElementById('donburakoTitle').textContent = `${fruit.emoji} ${fruit.name}が流れてきた…！`;
+      document.getElementById('donburakoSubtitle').innerHTML =
+        `鬼たちを多く討ち取ったことが天に届いたのか、川から${fruit.name}が流れてきました。<br>` +
+        `<span style="color:var(--text2);font-size:11px;">※ 討伐実績が積まれるほど、どんぶらこが起きやすくなります</span>`;
+
+      document.getElementById('donburakoInfo').innerHTML =
+        `${fruit.emoji} <strong>${fruit.name}</strong>を割ると…<br>` +
+        `隊長タイプ: <strong style="color:${newType === 'A' ? 'var(--accent)' : 'var(--accent2)'}">${typeLabel}</strong><br>` +
+        `新隊長候補名: <strong>${newFruitName}</strong><br>` +
+        `一行に移る仲間: ${Math.min(3, transferable.length)}名（${mgr.name}一行より）<br><br>` +
+        `<span style="color:var(--text2);font-size:10px;">` +
+        `討伐実績 — 鬼殺し型: ${aWins}件 ／ 仲間思い型: ${bWins}件<br>` +
+        `（実績の比率が果物の型に影響します）</span>`;
+
+      const wariBtn = document.getElementById('donburakoWariBtn');
+      if (wariBtn) wariBtn.disabled = !canPromote;
+      if (!canPromote && wariBtn) {
+        wariBtn.title = `${mgr.name}一行の仲間が足りません（最低2名必要）`;
+      }
+
+      document.getElementById('prospectModal').classList.add('open');
+    }
+
+    function donburakoWaru() {
+      if (!_donburakoState) return;
+      const { prospect, mgr, member, newType, newFruitName, fruit, transferable } = _donburakoState;
+
+      if (!canPromoteCheck(mgr, member)) return;
+
+      // 仲間を昇格扱いに
+      member.active = false;
+      member.promotedAt = state.turn;
+
+      // 2〜3名を新一行に移す
+      const transferCount = Math.min(rand(2, 3), transferable.length);
+      const transferred = transferable.slice(0, transferCount);
+      transferred.forEach(t => {
+        t.active = false;
+        t.transferredAt = state.turn;
+      });
+
+      const id = state.nextManagerId++;
+      const newTeam = transferred.map(t => ({
+        id: state.nextMemberId++,
+        name: t.name,
+        morale: t.morale,
+        active: true,
+        tenure: t.tenure,
+        skill: t.skill,
+        resilience: t.resilience,
+        chemistry: rand(40, 70),
+        marketValue: t.marketValue || t.skill,
+        isProspect: false,
+        vip: false,
+      }));
+
+      if (!mgr.memberHistory) mgr.memberHistory = [];
+      mgr.memberHistory.push({ name: member.name, event: 'promoted', turn: state.turn });
+      transferred.forEach(t => {
+        mgr.memberHistory.push({ name: t.name, event: 'transferred', turn: state.turn });
+      });
+
+      state.managers.push({
+        id,
+        name: newFruitName,
+        type: newType,
+        assignedProject: null,
+        revenue: newType === 'A' ? rand(8000, 12000) : rand(4000, 6000),
+        team: newTeam,
+        successCount: 0,
+        burnoutCount: 0,
+        _prevQuit: 0,
+        discernment: newType === 'A'
+          ? (Math.random() < 0.15 ? rand(61, 90) : rand(20, 60))
+          : (Math.random() < 0.15 ? rand(20, 39) : rand(40, 90)),
+        projectHistory: [],
+        memberHistory: [],
+      });
+
+      state.hireCount[newType]++;
+      state.totalPromotions = (state.totalPromotions || 0) + 1;
+      state.turnPromotions = (state.turnPromotions || 0) + 1;
+
+      prospect.resolved = true;
+      _donburakoState = null;
+
+      state.log.unshift({ type: 'good', text: `[第${state.turn}ターン] ${fruit.emoji} どんぶらこ — ${newFruitName}（${newType}型）が加勢！${transferCount}名が新一行へ` });
+
+      closeModal('prospectModal');
+      render();
+
+      // 次のプロスペクトがあれば続けて表示
+      const remaining = state.pendingProspects.filter(p => p.notified && !p.resolved);
+      if (remaining.length > 0) setTimeout(openProspectModal, 400);
+    }
+
+    function donburakoMiwokuru() {
+      if (!_donburakoState) return;
+      const { prospect, fruit, newFruitName } = _donburakoState;
+
+      // 見送り = 完全消滅（スヌーズなし）
+      prospect.resolved = true;
+      _donburakoState = null;
+
+      state.log.unshift({ type: 'warn', text: `[第${state.turn}ターン] ${fruit.emoji} ${newFruitName}候補を見送った。果物は川を流れ去った。` });
+
+      closeModal('prospectModal');
+      render();
+
+      // 次のプロスペクトがあれば続けて表示
+      const remaining = state.pendingProspects.filter(p => p.notified && !p.resolved);
+      if (remaining.length > 0) setTimeout(openProspectModal, 400);
+    }
+
+    // ============================================================
+    // 果物コンプリートボーナス
+    // ============================================================
+    const FRUIT_COMPLETE_SETS = [
+      {
+        id: 'citrus',
+        name: '柑橘の縁',
+        leaders: ['柿太郎', '蜜柑太郎', '檸檬太郎'],
+        bonus: (events) => {
+          state.capital += 10000;
+          events.push({ type: 'good', text: `[第${state.turn}ターン] 🍊🍈🍋 柑橘の縁コンプリート！財宝 +10,000両` });
+        },
+      },
+      {
+        id: 'summer',
+        name: '夏の実り',
+        leaders: ['桃次郎', '西瓜太郎', '苺太郎'],
+        bonus: (events) => {
+          state.managers.forEach(mgr => {
+            mgr.team.filter(t => t.active).forEach(t => {
+              t.morale = Math.min(100, t.morale + 50);
+            });
+          });
+          events.push({ type: 'good', text: `[第${state.turn}ターン] 🍑🍉🍓 夏の実りコンプリート！一行全員の士気 +50` });
+        },
+      },
+      {
+        id: 'mountain',
+        name: '山の恵み',
+        leaders: ['林檎太郎', '梨太郎', '葡萄太郎', '杏太郎'],
+        bonus: (events) => {
+          state.reputation = Math.min(100, (state.reputation || 80) + 30);
+          events.push({ type: 'good', text: `[第${state.turn}ターン] 🍎🍐🍇🍑 山の恵みコンプリート！村の名声 +30（名声80以上で討伐収益フル。失敗・撤退の名声ダメージを緩衝します）` });
+        },
+      },
+      {
+        id: 'harvest',
+        name: '大豊作',
+        leaders: DONBURAKO_FRUITS.map(f => f.leaderName),
+        bonus: (events) => {
+          state.capital += 100000;
+          events.push({ type: 'good', text: `[第${state.turn}ターン] ✨ 大豊作コンプリート！全ての果物が揃った。財宝 +100,000両。村の伝説に刻まれた。` });
+        },
+      },
+    ];
+
+    function checkFruitComplete() {
+      if (!state._completedSets) state._completedSets = [];
+      const leaderNames = state.managers.map(m => m.name);
+      const events = [];
+
+      FRUIT_COMPLETE_SETS.forEach(set => {
+        if (state._completedSets.includes(set.id)) return; // 既に達成済み
+        const completed = set.leaders.every(name => leaderNames.includes(name));
+        if (completed) {
+          state._completedSets.push(set.id);
+          set.bonus(events);
+        }
+      });
+
+      if (events.length > 0) {
+        events.forEach(e => state.log.unshift(e));
+      }
+    }
+
+    function canPromoteCheck(mgr, member) {
+      const transferable = mgr.team.filter(t => t.active && t.id !== member.id);
+      if (transferable.length < 2) {
+        alert(`${mgr.name}一行の仲間が足りないため割れません（最低2名が新一行に移る必要があります）`);
+        return false;
+      }
+      return true;
+    }
+
+    function promoteProspect(memberId, managerId) {
+      // 後方互換ラッパー（旧コードから呼ばれる場合に備えて）
+      donburakoWaru();
+    }
+
+    // ============================================================
+    // TIMERS
+    // ============================================================
+    let _turnTimer = null;
+    let _recruitTimer = null;
+
+    function startTurnTimer() {
+      clearInterval(_turnTimer);
+      let secs = 30;
+      updateTimerUI('turnTimerSecs', 'turnTimerFill', secs, 30);
+      _turnTimer = setInterval(() => {
+        secs--;
+        updateTimerUI('turnTimerSecs', 'turnTimerFill', secs, 30);
+        if (secs <= 0) {
+          clearInterval(_turnTimer);
+          nextTurn(); // 時間切れで自動進行
+        }
+      }, 1000);
+    }
+
+    function startRecruitTimer() {
+      clearInterval(_recruitTimer);
+      let secs = 30;
+      updateTimerUI('recruitTimerSecs', 'recruitTimerFill', secs, 30);
+      _recruitTimer = setInterval(() => {
+        secs--;
+        updateTimerUI('recruitTimerSecs', 'recruitTimerFill', secs, 30);
+        if (secs <= 0) {
+          clearInterval(_recruitTimer);
+          closeModal('recruitModal');
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI(secsId, fillId, secs, total) {
+      const secsEl = document.getElementById(secsId);
+      const fillEl = document.getElementById(fillId);
+      if (!secsEl || !fillEl) return;
+      secsEl.textContent = secs;
+      const pct = (secs / total) * 100;
+      fillEl.style.width = pct + '%';
+      fillEl.className = 'timer-fill' + (pct <= 20 ? ' danger' : pct <= 40 ? ' warn' : '');
+      secsEl.style.color = pct <= 20 ? 'var(--accent)' : pct <= 40 ? 'var(--warn)' : 'var(--text2)';
+    }
+
+    function stopAllTimers() {
+      clearInterval(_turnTimer);
+      clearInterval(_recruitTimer);
+    }
+
+    // ============================================================
+    // SHORTFALL WARNING
+    // ============================================================
+    function checkShortfallAndAssign(managerId, projectId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      const proj = state.projects.find(p => p.id === projectId);
+      if (!mgr || !proj) return;
+
+      const score = calcTeamScore(mgr);
+      const required = proj.requiredScore || 0;
+      const shortfallRate = required > 0 ? (required - score) / required : 0;
+
+      // A型は10%超でのみ警告、B型は5%超で警告（安全策をとりがち）
+      const threshold = mgr.type === 'A' ? 0.10 : 0.05;
+
+      if (shortfallRate > threshold) {
+        // 警告ポップアップ
+        const pct = Math.round(shortfallRate * 100);
+        const typeComment = mgr.type === 'A'
+          ? `「やってやる。多少キツくても一行が頑張るしかない。」`
+          : `「正直、今の一行では厳しいです。士気低下のリスクがあります。」`;
+
+        document.getElementById('shortfallTitle').textContent =
+          `${mgr.name}からの報告`;
+        document.getElementById('shortfallSubtitle').textContent = typeComment;
+        document.getElementById('shortfallDetail').innerHTML =
+          `現在の戦力: <strong>${score}</strong> ／ 必要: <strong>${required}</strong>（不足率 ${pct}%）<br>` +
+          `このままアサインすると失敗リスクが上昇し、収益ペナルティが発生する可能性があります。`;
+
+        // Confirmボタンに処理を紐付け
+        const confirmBtn = document.getElementById('shortfallConfirmBtn');
+        confirmBtn.onclick = () => {
+          closeModal('shortfallModal');
+          // 士気-5ペナルティ付きでアサイン実行
+          mgr.team.filter(t => t.active).forEach(t => { t.morale = Math.max(0, t.morale - 5); });
+          doAssign(managerId, projectId);
+        };
+        document.getElementById('shortfallModal').classList.add('open');
+      } else {
+        doAssign(managerId, projectId);
+      }
+    }
+    function toggleSwapPanel(projectId) {
+      const panel = document.getElementById(`swap-panel-${projectId}`);
+      if (!panel) return;
+      panel.classList.toggle('open');
+    }
+
+    function swapLeader(newManagerId, projectId) {
+      const proj = state.projects.find(p => p.id === projectId);
+      const newMgr = state.managers.find(m => m.id === newManagerId);
+      if (!proj || !newMgr) return;
+
+      // ① A型必須チェック
+      if (proj.requiresA && newMgr.type !== 'A') {
+        alert(`「${proj.name}」は鬼殺し型指定討伐任務です。仲間思い型への交代はできません。`);
+        return;
+      }
+
+      const oldMgr = proj.assignedManager ? state.managers.find(m => m.id === proj.assignedManager) : null;
+
+      // Free old manager
+      if (oldMgr) oldMgr.assignedProject = null;
+
+      // Swap penalty: morale hit on team (disruption) + small capital cost
+      const swapCost = 150;
+      state.capital -= swapCost;
+      proj.team && proj.team.forEach(t => { if (t.active) t.morale -= rand(5, 12); });
+
+      // Also hit the new manager's team morale slightly
+      newMgr.team.filter(t => t.active).forEach(t => { t.morale -= rand(2, 6); });
+
+      // Assign new manager
+      proj.assignedManager = newManagerId;
+      newMgr.assignedProject = projectId;
+
+      // Flame risk increases due to handover
+      proj.flameRisk = Math.min(0.9, proj.flameRisk * 1.25);
+
+      state.log.unshift({ type: 'warn', text: `[第${state.turn}ターン] 「${proj.name}」隊長交代 → ${newMgr.name}に変更 (失敗リスク↑)` });
+
+      render();
+    }
+
+    function assignManager(managerId, projectId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      const proj = state.projects.find(p => p.id === projectId);
+      if (!mgr || !proj) return;
+
+      // ① A型必須チェック
+      if (proj.requiresA && mgr.type !== 'A') {
+        alert(`「${proj.name}」は鬼殺し型の隊長が必要な討伐任務です。\n（依頼主から鬼殺し型の隊長を指定されています）`);
+        return;
+      }
+
+      // アンアサイン（トグル）の場合はそのまま実行
+      if (mgr.assignedProject === projectId) {
+        doAssign(managerId, projectId);
+        return;
+      }
+
+      // アサイン時は戦力チェック
+      checkShortfallAndAssign(managerId, projectId);
+    }
+
+    function doAssign(managerId, projectId) {
+      const mgr = state.managers.find(m => m.id === managerId);
+      const proj = state.projects.find(p => p.id === projectId);
+      if (!mgr || !proj) return;
+
+      // 失敗中プロジェクトから別討伐任務にアサインしようとしている場合は離脱確認
+      if (mgr.assignedProject && mgr.assignedProject !== projectId) {
+        const prevProj = state.projects.find(p => p.id === mgr.assignedProject);
+        if (prevProj && prevProj.status === 'failed') {
+          const penalty = Math.round(prevProj.baseRevenue * 0.20);
+          if (!confirm(`「${prevProj.name}」は失敗中です。\n\n離脱するには撤退費用 ${fmt(penalty)} が発生します。\n\nそれでも離脱しますか？`)) return;
+          state.capital -= penalty;
+          state.log.unshift({ type: 'bad', text: `[第${state.turn}ターン] 「${prevProj.name}」失敗中に離脱 → 撤退費用 -${fmt(penalty)}` });
+          prevProj.assignedManager = null;
+          mgr.assignedProject = null;
+          // 離脱後も失敗継続・ペナルティは続く
+        }
+      }
+
+      // 通常のアンアサイン（トグル）
+      if (mgr.assignedProject) {
+        const prevProj = state.projects.find(p => p.id === mgr.assignedProject);
+        if (prevProj && (prevProj.status === 'available' || prevProj.status === 'active')) {
+          prevProj.assignedManager = null;
+          if (prevProj.status === 'active') prevProj.status = 'available';
+        }
+      }
+
+      // Toggle
+      if (mgr.assignedProject === projectId) {
+        mgr.assignedProject = null;
+        proj.assignedManager = null;
+        if (proj.status !== 'failed') proj.status = 'available';
+      } else {
+        mgr.assignedProject = projectId;
+        proj.assignedManager = managerId;
+        if (proj.status !== 'failed') proj.status = 'active';
+        state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${mgr.name} を「${proj.name}」にアサイン` });
+      }
+
+      render();
+    }
+
+    function openHire() {
+      if (state.capital < 200) {
+        alert('財宝が不足しています（招集費用: 200両）');
+        return;
+      }
+      document.getElementById('hireModal').classList.add('open');
+    }
+
+    function hire(type) {
+      state.capital -= 200;
+      addManager(type);
+      if (!state.hireExternal) state.hireExternal = { A: 0, B: 0 };
+      state.hireExternal[type] = (state.hireExternal[type] || 0) + 1;
+      state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] ${type}タイプの隊長を招集 ` });
+      closeModal('hireModal');
+      render();
+    }
+
+    // ============================================================
+    // NEW GRAD RECRUITMENT
+    // ============================================================
+    function openRecruitModal() {
+      // Determine number of candidates based on capital
+      let maxCount;
+      if (state.capital < 5000) maxCount = rand(0, 1);
+      else if (state.capital < 20000) maxCount = rand(1, 3);
+      else maxCount = rand(3, 5);
+
+      if (maxCount === 0) {
+        state.log.unshift({ type: 'info', text: `[第${state.turn}ターン] お供に加勢します！：財宝不足のため応募者なし` });
+        return;
+      }
+
+      // Generate candidates
+      const candidates = [];
+      for (let i = 0; i < maxCount; i++) {
+        candidates.push({
+          id: state.nextMemberId++,
+          name: memberName(),
+          skill: rand(10, 25),
+          morale: rand(70, 90),
+          cost: 50
+        });
+      }
+      state._recruitCandidates = candidates;
+
+      const subtitle = document.getElementById('recruitSubtitle');
+      subtitle.textContent = `${candidates.length}名の加勢希望者が集まりました。1人あたり支度金50両。一行を選んで迎え入れてください。`;
+
+      const list = document.getElementById('recruitList');
+      list.innerHTML = '';
+
+      candidates.forEach((c, idx) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background:var(--surface2);border:1px solid var(--border);padding:12px;';
+        item.id = `recruit-item-${idx}`;
+
+        const mgrOptions = state.managers.map(m => {
+          const active = m.team.filter(t => t.active).length;
+          return `<option value="${m.id}">${m.name} [${m.type}型] (${active}名)</option>`;
+        }).join('');
+
+        item.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <div>
+          <strong style="font-size:13px;">${c.name}</strong>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-left:8px;">スキル:${c.skill} / 士気:${c.morale}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="recruit-dest-${idx}" style="font-family:var(--mono);font-size:11px;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:4px 8px;">
+            ${mgrOptions}
+          </select>
+          <button class="promote-btn" onclick="hireGrad(${idx})">加勢 50両</button>
+        </div>
+      </div>
+    `;
+        list.appendChild(item);
+      });
+
+      document.getElementById('recruitModal').classList.add('open');
+      startRecruitTimer();
+    }
+
+    function hireGrad(idx) {
+      const c = state._recruitCandidates[idx];
+      if (!c || c.hired) return;
+      if (state.capital < 50) { alert('財宝が不足しています'); return; }
+
+      const destId = parseInt(document.getElementById(`recruit-dest-${idx}`).value);
+      const mgr = state.managers.find(m => m.id === destId);
+      if (!mgr) return;
+
+      state.capital -= 50;
+      state.totalHiredGrads = (state.totalHiredGrads || 0) + 1;
+      mgr.team.push({
+        id: c.id,
+        name: c.name,
+        skill: c.skill,
+        morale: c.morale,
+        active: true,
+        tenure: 0,
+        resilience: rand(10, 90),
+        chemistry: rand(20, 80),
+        aUnderTurns: 0,
+        bUnderTurns: 0,
+        awakened: false,
+        isProspect: false,
+        marketValue: c.skill
+      });
+      c.hired = true;
+
+      state.log.unshift({ type: 'good', text: `[第${state.turn}ターン] ${c.name} が${mgr.name}一行に加わった ` });
+      if (!mgr.memberHistory) mgr.memberHistory = [];
+      mgr.memberHistory.push({ name: c.name, event: 'hired', turn: state.turn });
+
+      // Grey out the item
+      const item = document.getElementById(`recruit-item-${idx}`);
+      if (item) { item.style.opacity = '0.4'; item.style.pointerEvents = 'none'; }
+
+      render();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      // Stop recruit timer when modal closes
+      if (id === 'recruitModal') {
+        clearInterval(_recruitTimer);
+      }
+    }
+
+    function endGame(bankrupt) {
+      stopAllTimers();
+      const modal = document.getElementById('gameoverModal');
+      modal.classList.add('open');
+
+      // 結果を見るボタン・実値ボタンを表示
+      const resultBtn = document.getElementById('showResultBtn');
+      if (resultBtn) resultBtn.style.display = 'inline-block';
+      const revealBtn = document.getElementById('showRevealBtn');
+      if (revealBtn) revealBtn.style.display = 'inline-block';
+
+      const title = document.getElementById('gameoverTitle');
+      const score = document.getElementById('gameoverScore');
+      const rating = document.getElementById('gameoverRating');
+      const comment = document.getElementById('gameoverComment');
+      const stats = document.getElementById('gameoverStats');
+
+      if (bankrupt) {
+        title.textContent = 'VILLAGE LOST';
+        title.style.color = 'var(--accent)';
+      } else {
+        title.textContent = 'SIMULATION COMPLETE';
+        title.style.color = 'var(--good)';
+      }
+
+      score.textContent = fmt(Math.max(0, state.capital));
+
+      const cap = state.capital;
+      const maxQ = state.maxTurns || 20;
+      const years = maxQ / 4;
+
+      let r, c;
+      if (cap <= 0) { r = '▓ COLLAPSE'; c = '村は滅亡しました。'; }
+      else if (cap < 3000) { r = 'D — 村滅亡寸前'; c = '村は生き残ったが傷だらけだ。静かに消耗した人たちのコストが数字に現れている。'; }
+      else if (cap < 8000) { r = 'C — なんとか存続'; c = 'そこそこの結果だ。ただし、見えていないコストがある。'; }
+      else if (cap < 15000) { r = 'B — 安定した村'; c = '構造的リスクを一定管理できた。Aタイプの扱いは適切だったか？'; }
+      else if (cap < 25000) { r = 'A — 栄える村'; c = 'バランスのとれた采配。人材と財宝の両立ができている。'; }
+      else if (cap < 60000) { r = 'S — ONI SLAYER'; c = '完璧に近い采配。型の使い分けを完全に理解している。'; }
+      else if (cap < 120000) { r = 'SS — MOMOTARO DYNASTY'; c = '村が自律的に回り始めた。覚醒（伝説化）した人材が鬼退治の行方を変えた。'; }
+      else { r = 'SSS — MOMOTARO LEGEND'; c = `${years}ターンにわたる采配を制した。覚醒（伝説化）した人材が次世代の隊長になっている。`; }
+
+      // 人員統計
+      const finalHeadcount = state.managers.reduce((s, m) => s + m.team.filter(t => t.active).length, 0);
+      const initialHeadcount = 2 * 9; // 初期隊長2人×平均9名（概算）
+      const ext = state.hireExternal || { A: 0, B: 0 };
+      const promotedA = state.managers.filter(m => m.type === 'A').length - 1 - (ext.A || 0); // 初期1人分引く
+      const promotedB = state.managers.filter(m => m.type === 'B').length - 1 - (ext.B || 0);
+      const awakenCount = state.managers.reduce((s, m) => s + m.team.filter(t => t.awakened).length, 0);
+
+      // ── リーダーコメント生成 ──
+      const LEADER_COMMENTS = {
+        'high_large_low_A': '「鬼を討った。それだけだ。文句があるなら刀で言え。」',
+        'high_large_high_A': '「俺が前に出た。脱けた奴らは覚悟が足りなかった。それが現実だ。」',
+        'high_small_low_A': '「物足りないが、まあ及第点だ。次は強い鬼を倒してこい。」',
+        'high_small_high_A': '「なぜこんな小鬼相手で仲間が消えるんだ。情けない。」',
+        'low_large_low_A': '「一行は残った。だが鬼を倒せていない。何のための遠征だ。」',
+        'low_large_high_A': '「最悪だ。強い鬼に挑んで、仲間も手柄も失った。」',
+        'low_small_low_A': '「俺がいる意味が分からない村だった。」',
+        'low_small_high_A': '「こんな小鬼相手で消耗させるとは思わなかった。反省しろ。」',
+        'high_large_low_B': '「みんなよく戦ってくれました。この勝利は一行全員のものです。」',
+        'high_large_high_B': '「強い鬼を討てました。でも去っていった仲間のことが忘れられません。」',
+        'high_small_low_B': '「着実に討ち取ってきました。この一行なら次の鬼も大丈夫です。」',
+        'high_small_high_B': '「鬼は倒せましたが…もっとみんなを守れたはずでした。」',
+        'low_large_low_B': '「討ち取れませんでしたが、一行は強くなっています。次の遠征に活きます。」',
+        'low_large_high_B': '「強い鬼に挑んで、仲間も手柄も…申し訳なかったです。」',
+        'low_small_low_B': '「鬼は手強かった。でも誰も倒れなかった。それが私の誇りです。」',
+        'low_small_high_B': '「守れなかった。鬼も倒せなかった。私の力不足でした。」',
+      };
+
+      // VILLAGE_LOST時は必ずネガティブなコメント
+      const VILLAGE_LOST_COMMENTS_A = [
+        '「こんな結末は…俺のせいじゃない。鬼が強すぎただけだ。」',
+        '「終わった。全部終わった。なぜ鬼に勝てなかったんだ。」',
+        '「村が潰れた。俺は正しく戦っていたはずだ。」',
+      ];
+      const VILLAGE_LOST_COMMENTS_B = [
+        '「ごめんなさい。みんなを鬼から守れなかった。本当に申し訳ない。」',
+        '「私の見立てが甘かった。みんなに申し訳ない気持ちでいっぱいです。」',
+        '「こんな結末に…。もっとうまく戦えたはずなのに。」',
+      ];
+
+      function getLeaderKey(mgr) {
+        const successRate = state.totalProjects > 0 ? state.totalSuccess / state.totalProjects : 0;
+        const successKey = successRate >= 0.6 ? 'high' : 'low';
+
+        const largeDone = state.projects.filter(p => p.status === 'completed' && p.scale === 'large').length;
+        const scaleKey = largeDone >= 2 ? 'large' : 'small';
+
+        const finalHead = state.managers.reduce((s, m) => s + m.team.filter(t => t.active).length, 0);
+        const quitRate = finalHead > 0 ? state.totalQuit / (finalHead + state.totalQuit) : 0;
+        const quitKey = quitRate < 0.1 ? 'low' : 'high';
+
+        const typeKey = mgr.type === 'A' ? 'A' : 'B';
+        return `${successKey}_${scaleKey}_${quitKey}_${typeKey}`;
+      }
+
+      // 全リーダーのチップを生成
+      const leadersEl = document.getElementById('gameoverLeaders');
+      leadersEl.innerHTML = '';
+      const sortedMgrs = [...state.managers].sort((a, b) => b.successCount - a.successCount);
+
+      sortedMgrs.forEach(mgr => {
+        const comment = bankrupt
+          ? choose(mgr.type === 'A' ? VILLAGE_LOST_COMMENTS_A : VILLAGE_LOST_COMMENTS_B)
+          : (LEADER_COMMENTS[getLeaderKey(mgr)] || '「…。」');
+        const wrap = document.createElement('div');
+        wrap.className = 'leader-comment-wrap';
+        wrap.innerHTML = `
+      <div class="gameover-leader-chip type-${mgr.type.toLowerCase()}">
+        ${mgrFace(mgr)} ${mgr.name}
+      </div>
+      <div class="leader-comment-bubble">
+        ${comment}<br>
+        <span style="color:var(--text2);font-size:10px;">識別力: ${mgr.discernment}</span>
+      </div>
+    `;
+        leadersEl.appendChild(wrap);
+      });
+
+      // 全仲間実値表示（結果画面のみ）
+      const allMembersHtml = sortedMgrs.map(mgr => {
+        const active = mgr.team.filter(t => t.active);
+        if (active.length === 0) return '';
+        const rows = active.map(t => {
+          const isAce = t.skill >= 85;
+          const obsSkill = observedSkill(t, mgr);
+          const obsMv = observedMarketValue(t);
+          const obsRes = observedResilience(t, mgr);
+          const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c' };
+          const labelDot = t.label
+            ? `<span style="width:8px;height:8px;border-radius:50%;background:${lblColors[t.label]};display:inline-block;margin-right:4px;"></span>`
+            : '';
+          const diff = (obs, real) => {
+            const d = real - obs;
+            if (d === 0) return `<span style="color:var(--text2);">±0</span>`;
+            return `<span style="color:${d > 0 ? 'var(--good)' : 'var(--accent)'};">${d > 0 ? '+' : ''}${d}</span>`;
+          };
+          return `<tr style="font-size:10px;border-top:1px solid var(--border);">
+        <td style="padding:3px 6px;">${labelDot}${moraleFace(t.morale)} ${t.name}${t.awakened ? '💥' : t.isProspect ? '⭐' : ''}</td>
+        <td style="padding:3px 6px;text-align:center;color:${isAce ? 'var(--warn)' : 'var(--text)'};">${obsSkill}→<strong>${t.skill}</strong>${isAce ? '⚡' : ''} ${diff(obsSkill, t.skill)}</td>
+        <td style="padding:3px 6px;text-align:center;color:var(--text2);">${100 - obsMv}→<strong>${100 - (t.marketValue || t.skill)}</strong> ${diff(obsMv, t.marketValue || t.skill)}</td>
+        <td style="padding:3px 6px;text-align:center;color:${(t.resilience || 50) >= 70 ? 'var(--good)' : 'var(--text2)'};">${obsRes}→<strong>${t.resilience || '?'}</strong> ${diff(obsRes, t.resilience || 50)}</td>
+        <td style="padding:3px 6px;text-align:center;color:var(--text2);">${t.chemistry || '?'}</td>
+      </tr>`;
+        }).join('');
+        return `
+      <div style="margin-bottom:14px;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);margin-bottom:4px;">${mgrFace(mgr)} ${mgr.name} (識別力:${mgr.discernment})</div>
+        <table style="width:100%;border-collapse:collapse;font-family:var(--mono);">
+          <thead><tr style="font-size:9px;color:var(--text2);background:var(--surface2);">
+            <th style="text-align:left;padding:3px 6px;">名前</th>
+            <th style="padding:3px 6px;">スキル(観測→実値)</th>
+            <th style="padding:3px 6px;">忠誠心(推定→実値)</th>
+            <th style="padding:3px 6px;">胆力(観測→実値)</th>
+            <th style="padding:3px 6px;">相性</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+      }).join('');
+
+      // 結果モーダルに全仲間実値セクションを追加
+      const existingReveal = document.getElementById('gameoverMemberReveal');
+      if (existingReveal) existingReveal.remove();
+      const revealDiv = document.createElement('div');
+      revealDiv.id = 'gameoverMemberReveal';
+      revealDiv.style.cssText = 'margin-top:16px;background:var(--surface2);padding:16px;border-radius:8px;text-align:left;max-height:300px;overflow-y:auto;';
+      revealDiv.innerHTML = `
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:6px;">🔍 全仲間実値（隠しパラメータ公開）</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;">
+      <span>ラベル凡例:</span>
+      <span><span style="width:8px;height:8px;border-radius:50%;background:#e88;display:inline-block;margin-right:3px;vertical-align:middle;"></span>赤</span>
+      <span><span style="width:8px;height:8px;border-radius:50%;background:#ec8;display:inline-block;margin-right:3px;vertical-align:middle;"></span>黄</span>
+      <span><span style="width:8px;height:8px;border-radius:50%;background:#8c8;display:inline-block;margin-right:3px;vertical-align:middle;"></span>緑</span>
+      <span><span style="width:8px;height:8px;border-radius:50%;background:#88c;display:inline-block;margin-right:3px;vertical-align:middle;"></span>青</span>
+      <span style="color:var(--accent2);">差分: 緑=実値が高い / 赤=実値が低い</span>
+    </div>
+    ${allMembersHtml || '<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">一行に仲間なし</div>'}
+  `;
+      // 離脱者テーブル
+      const quitMembersHtml = sortedMgrs.map(mgr => {
+        const quitters = mgr.team.filter(t => !t.active && !t.promotedAt && !t.transferredAt && t.quitSnapshot);
+        if (quitters.length === 0) return '';
+        const rows = quitters.map(t => {
+          const s = t.quitSnapshot;
+          const lblColors = { red: '#e88', yellow: '#ec8', green: '#8c8', blue: '#88c' };
+          const labelDot = s.label
+            ? `<span style="width:8px;height:8px;border-radius:50%;background:${lblColors[s.label]};display:inline-block;margin-right:4px;"></span>`
+            : '';
+          return `<tr style="font-size:10px;border-top:1px solid var(--border);">
+        <td style="padding:3px 6px;">${labelDot}${t.name} <span style="color:var(--text2);font-size:9px;">Q${t.quitTurn || '?'}</span></td>
+        <td style="padding:3px 6px;text-align:center;">${s.skill}</td>
+        <td style="padding:3px 6px;text-align:center;color:var(--text2);">${100 - s.marketValue}</td>
+        <td style="padding:3px 6px;text-align:center;color:var(--text2);">${s.morale}</td>
+        <td style="padding:3px 6px;text-align:center;color:${s.resilience >= 70 ? 'var(--good)' : 'var(--text2)'};">${s.resilience}</td>
+        <td style="padding:3px 6px;text-align:center;color:var(--text2);">${s.chemistry}</td>
+      </tr>`;
+        }).join('');
+        return `
+      <div style="margin-bottom:14px;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-bottom:4px;">💔 ${mgr.name} 一行の離脱者 (${quitters.length}名)</div>
+        <table style="width:100%;border-collapse:collapse;font-family:var(--mono);">
+          <thead><tr style="font-size:9px;color:var(--text2);background:var(--surface2);">
+            <th style="text-align:left;padding:3px 6px;">名前</th>
+            <th style="padding:3px 6px;">スキル</th>
+            <th style="padding:3px 6px;">忠誠心</th>
+            <th style="padding:3px 6px;">士気</th>
+            <th style="padding:3px 6px;">胆力</th>
+            <th style="padding:3px 6px;">相性</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+      }).join('');
+
+      // 代表コメント（最多成功リーダー）
+      if (sortedMgrs.length > 0) {
+        const rep = sortedMgrs[0];
+        const repComment = bankrupt
+          ? choose(rep.type === 'A' ? VILLAGE_LOST_COMMENTS_A : VILLAGE_LOST_COMMENTS_B)
+          : (LEADER_COMMENTS[getLeaderKey(rep)] || '「…。」');
+        const repEl = document.getElementById('gameoverLeaderComment');
+        repEl.style.display = 'block';
+        repEl.innerHTML = `<strong>${mgrFace(rep)} ${rep.name}</strong>（最多成功）<br>${repComment}`;
+        repEl.style.borderLeftColor = rep.type === 'A' ? 'var(--accent)' : 'var(--accent2)';
+      }
+
+      // stats を先に書き換える（これより後にDOMを追加すること）
+      stats.innerHTML = `
+    <strong>📁 討伐任務</strong><br>
+    総討伐任務数: ${state.totalProjects}件 ／ 討伐: ${state.totalSuccess} ／ 失敗: ${state.totalProjects - state.totalSuccess}<br><br>
+    <strong>👥 人員</strong><br>
+    最終一行人数: ${finalHeadcount}名 ／ 累計離脱: ${state.totalQuit}名<br>
+    お供に加勢します！: ${state.totalHiredGrads || 0}名 ／ 他村からの助っ人: A型${ext.A || 0}名・B型${ext.B || 0}名<br>
+    新たな加勢: 鬼殺し型${Math.max(0, promotedA)}体・仲間思い型${Math.max(0, promotedB)}体<br>
+    覚醒（伝説化）した人材: ${awakenCount}名<br><br>
+    <strong>💰 コスト</strong><br>
+    離脱による招集費用概算: ${fmt(state.totalQuit * 300)}
+  `;
+
+      // 既存の追加済みセクションを削除してから再挿入
+      ['gameoverMemberReveal', 'gameoverQuitReveal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      });
+
+      // 🔍 全仲間実値をstatsの後に追加
+      stats.after(revealDiv);
+
+      // 💔 離脱者をrevealDivの後に追加
+      if (quitMembersHtml) {
+        const quitDiv = document.createElement('div');
+        quitDiv.id = 'gameoverQuitReveal';
+        quitDiv.style.cssText = 'margin-top:12px;background:var(--surface2);padding:16px;border-radius:8px;text-align:left;max-height:260px;overflow-y:auto;border-left:3px solid var(--accent);';
+        quitDiv.innerHTML = `
+      <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:6px;">💔 離脱者の記録（離脱時点の実値）</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-bottom:8px;">ラベルが付いていた人は意図通りだったか確認してください。</div>
+      ${quitMembersHtml}
+    `;
+        revealDiv.after(quitDiv);
+      }
+    }
+  </script>
+</body>
+
+</html>
